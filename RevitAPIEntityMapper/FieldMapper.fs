@@ -5,7 +5,6 @@ open System.Collections.Generic
 open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.Mapper
 open System.ComponentModel.DataAnnotations.Schema
-open System.Linq
 open Abstractions
 
 
@@ -26,14 +25,14 @@ let fieldinit entity=
 
 
 
-let entityHandler visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo) = 
+let fieldMapper visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo) = 
     let (eType,info) = ctx
     let writeMeta builderMethod t = builderMethod (info.Name,t) |> writeMeta info
 
     let handleEntity builderMethod def = match visitor def.entityType with 
-                                             |Suc -> (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
-                                                     Success(builder)
-                                             |Fail(s) -> Failure(s)
+                                             |Success(_) ->  (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
+                                                             Success(builder)
+                                             |Failure(s) -> Failure(s)
 
     let handleCollection builderMethod = function
                                             |ValueType(tp)->writeMeta builderMethod tp |> ignore
@@ -45,11 +44,13 @@ let entityHandler visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo) 
         |Array(t) -> handleCollection builder.AddArrayField t
         |Entity(def) -> handleEntity builder.AddSimpleField def
         |Map(key,value) -> handleCollection (fun (s,t)->builder.AddMapField(s,key,t)) value
+        |_ -> Failure("Unhandled")
 
 
-let body = entityVisitor fieldinit (fun info->info.PropertyType) entityHandler
+let body = visitorBuilder fieldinit (fun info->info.PropertyType) fieldMapper
 
-let hightlevel = visitorEntryPoint body (fun builder-> builder.Finish() |> ignore) 
+let hightlevel = higthLevelVisitorBuilder body (fun builder-> builder.Finish())
+
 
 
 

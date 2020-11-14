@@ -73,24 +73,24 @@ let isArray = pipeline (arrCtor isSimple) (fun t-> t.IsInterface && t = list)
 
 let getType = isMap >> isArray >> isSimple >> isEntity
 
-type NotTypedResult =
-    |Suc
-    |Fail of string
-
 type 'k Result = 
     |Success of 'k
     |Failure of string
     static member Unhandled = Failure("Unhandled error")
 
-let rec entityVisitor init toType basicHandler higthLevelVisitor entity =
-    let this = higthLevelVisitor
+let continueSuccess cont = function
+    | Success(s) -> cont s
+    | Failure(_) as f -> f
+
+
+
+let visitorBuilder init toType basicHandler higthLevelVisitor entity =
     let rec createSomeInner tuple = 
         match tuple with
             |(state,[]) -> Success(state)
             |(state,h::tail) -> let next some =
-                                    match some |> basicHandler this state with
-                                        |Success(s) -> createSomeInner (s,tail)
-                                        |Failure(_) as f -> f
+                                    some |> basicHandler higthLevelVisitor state
+                                         |> continueSuccess (fun s-> createSomeInner (s,tail))
                                 
                                 match h |> toType |> None |> getType with
                                     | Error(s) -> Failure(s)
@@ -100,14 +100,14 @@ let rec entityVisitor init toType basicHandler higthLevelVisitor entity =
     entity |> init |> createSomeInner 
 
 
-let rec visitorEntryPoint visitor finallize t =
-    let this = visitorEntryPoint visitor finallize
-    let result = match t |> None |> isEntity  with
-                   | Error(s) -> Failure(s)
-                   | Entity(e) -> e |> visitor this
-                   | _ -> Failure("Unhandled")
-    match result with
-        | Failure(s) -> Fail(s)
-        | Success(r) -> r |> finallize
-                        Suc
+let higthLevelVisitorBuilder visitor finallize =
+    let rec hlVisitor tp =
+                    let result = match tp |> None |> isEntity  with
+                                    | Error(s) -> Failure(s)
+                                    | Entity(e) -> e |> visitor hlVisitor
+                                    | _ -> Failure("Unhandled")
+                    match result with
+                        | Success(s) -> Success(s|>finallize)
+                        | Failure(s) -> Failure(s)
+    hlVisitor
 
