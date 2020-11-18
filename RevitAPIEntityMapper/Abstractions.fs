@@ -32,20 +32,15 @@ let typeofEntity = typeof<Entity>
 let getProps entity = entity.entityType.GetProperties(BindingFlags.Instance ||| BindingFlags.Public)
                         |> List.ofArray 
                         |> List.filter (fun p-> not << isNull <|(p.GetCustomAttribute<NotMappedAttribute>()))
-let getMethodInfo (e : Expr<'T>) : MethodInfo =
-  match e with
-  | Patterns.Call (_, mi, _) -> mi
-  | _ -> failwithf "Expression has the wrong shape, expected Call (_, _, _) instead got: %A" e
-
-let genericMethodInfo (e : Expr<'T>) : MethodInfo = let typedInfo = getMethodInfo e
-                                                    typedInfo.GetGenericMethodDefinition ()
 
 let pipeline ctor predicate = function 
     |None(t) when predicate(t) -> t|> ctor 
     | some -> some
 
 let dict = typedefof<IDictionary<obj,obj>>
+let genDict tps = dict.MakeGenericType (tps|>List.toArray)
 let list = typedefof<IList<obj>>
+let genList t = list.MakeGenericType ([t]|>List.toArray) 
 let simple = HashSet( [typeof<int>])
 let availableKeys = HashSet<Type>()
 

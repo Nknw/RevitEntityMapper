@@ -10,11 +10,8 @@
     <Compile Include="Attributes.fs" />
     <Compile Include="Abstractions.fs" />
     <Compile Include="FieldMapper.fs" />
+    <Compile Include="ExprHelpers.fs" />
     <Compile Include="ExpressionBuilder.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

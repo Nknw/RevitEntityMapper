@@ -1,22 +1,26 @@
 ﻿module ExpressionBuilder
 open System
 open Abstractions
+open ExprHelpers
 open Autodesk.Revit.Mapper
 open System.Collections.Generic
 open Autodesk.Revit.DB.ExtensibleStorage
 open FSharp.Quotations
-open FSharp.Quotations.Evaluator
 open System.Reflection
 open Autodesk.Revit.DB
 open System.Linq
+open System.Collections
+open FSharp.Linq.RuntimeHelpers
 
 type ExpressionContext = {
-    letExpr: Expr -> Expr
+    lambdaExpr: Expr -> Expr
     bindings: Expr list
-    obj: Expr
-    ent: Var
+    output : Expr
+    input: Expr
     defaultUT : Option<DisplayUnitType>
     }
+
+let makeGenType types (m:Type) = m.MakeGenericType (types|>List.toArray)
 
 let getInfo () = 
     let e = Entity ()
@@ -26,18 +30,17 @@ let getutInfo () =
     let e = Entity()
     <@ e.Get ("", DisplayUnitType.DUT_1_RATIO) @> |> genericMethodInfo
 
-let factoryInfo factory =
-    let e = Entity ()
-    <@ factory e @> |> genericMethodInfo
 
-
+let castFactory t f =
+    let factoryType = fsFuncType |> makeGenType [typeofEntity;t]
+    Expr.Coerce(Val f,factoryType)
+    
 let lst = List<string> ()
 let miGet = getInfo()
 let miutGet = getutInfo()
 let mapInfo = <@Seq.map (fun c->c) (seq{"1"}) @> |> genericMethodInfo
 let toListInfo = <@ lst.ToList ()@> |>genericMethodInfo
 
-let gen = mapInfo.MakeGenericMethod ([typeof<int>]|>List.toArray)
 let havingUnitType = [typeof<float>;typeof<XYZ>;typeof<double>;typeof<UV>] 
 
 let readMeta (info:MemberInfo) =
@@ -45,70 +48,82 @@ let readMeta (info:MemberInfo) =
         |null -> Option.None
         |attr -> Some(attr.DisplayType)
 
-let makemiGeneric t = miGet.MakeGenericMethod (t|> List.toArray)
-
-let listquote (name:Expr<string>) = <@fun (e:Entity)-> let ents = e.Get<IList<Entity>> %name 
-                                                       ents@>
-
-let exprInit (exprs:Dictionary<Type,Entity->obj>) entity = 
-    match exprs.TryGetValue entity.entityType with
+let exprInit (factories:Dictionary<Type,obj>) entity = 
+    match factories.TryGetValue entity.entityType with
         |(true,factory) -> factory |> Success |> Complited
         |(false,_) -> let t = entity.entityType
                       let constructor = [] |> List.toArray |> t.GetConstructor
-                      let letExpr var bind body = Expr.Let (var,bind,body)
-                      let var = Var ("obj", t)
-                      let bind = (constructor,[]) |> Expr.NewObject
+                      let obj = Var ("obj", t)
+                      let ent = Var ("e",typeofEntity)
+                      let newObj = (constructor,[]) |> Expr.NewObject
+                      let lmd body = Expr.Lambda(ent,Expr.Let(obj,newObj,body)) 
                       let ctx = { 
-                        obj = Expr.Var var
+                        input = Expr.Var ent
                         bindings = []
-                        letExpr = letExpr var bind
-                        ent = Var ("e",typeofEntity)
+                        lambdaExpr = lmd
+                        output = Expr.Var obj
                         defaultUT = readMeta entity.entityType
                       }
                       NeedsCreate(ctx, getProps entity)
 
 let finallize ctx = 
     let bindings = ctx.bindings |> List.reduce (fun p n -> Expr.Sequential(p,n))
-    let cast = Expr.Coerce(ctx.obj, typeof<obj>)
-    let body = Expr.Sequential(bindings,cast) |> ctx.letExpr
-    Expr.Lambda(ctx.ent, body).CompileUntyped() :?> Entity -> obj
+    let lambda = Expr.Sequential(bindings,ctx.output) |> ctx.lambdaExpr
+    lambda |> LeafExpressionConverter.EvaluateQuotation |> Success
     
 
 let callBuilder e (info:PropertyInfo) defaultUT t = 
-    let tp = List.toArray [t]
-    let object = Expr.Var e
-    let callWithDP dp = Expr.Call(object,miutGet.MakeGenericMethod tp,[Expr.Value info.Name;Expr.Value dp])
+    let callWithDP dp = Call miutGet >> MakeGen [t] >> On e >> With [Val info.Name;Val dp] <| ()
     match List.contains info.PropertyType havingUnitType with
-        |false -> Expr.Call(object,miGet.MakeGenericMethod tp,[Expr.Value info.Name])
-        |true -> match info|>readMeta with
+        |false -> Call miGet >> MakeGen [t] >> On e >> WithConst [info.Name] <| ()
+        |true -> match info |> readMeta with
                     |Some(dp) -> callWithDP dp
                     |Option.None -> match defaultUT with
                                         | Some(dp) -> callWithDP dp
                                         | Option.None -> failwith ""
    
 
+let handleIncludedType t simpleHandler entityHandler = 
+    match t with
+        |ValueType(t) -> t|> simpleHandler 
+        |EntityType(def) -> entityHandler def
+
+let arrayEntityHandler response entities factory def = 
+    () 
+     |> (Call mapInfo >> MakeGen [typeofEntity; def.entityType] >> With [factory;entities] ) 
+     |> (fun mapExpr -> Call toListInfo >> MakeGen [def.entityType] >> With [mapExpr] <| ()) 
+     |> response
+
+let mapEntityHandler response entities factory def =
+    ()
+     |> (Expr.ge)
+    
+    
 
 let expressionBuilder visitor exprCtx (eType,info) = 
     let createNewCtx expr = {exprCtx with bindings = expr :: exprCtx.bindings}  |> Success
-    let set body = Expr.PropertySet (exprCtx.obj,info,body)
-    let fetchEntity = callBuilder exprCtx.ent info exprCtx.defaultUT
-    let response t = t|> fetchEntity |> set |> createNewCtx
-    let handleIncludedType t simpleHandler entityHandler = 
-        match t with
-            |ValueType(t) -> t|> simpleHandler |> response
-            |EntityType(def) -> entityHandler def
+    let set body = SetProp info >> On exprCtx.output >> To body <| ()
+    let fetchEntity = callBuilder exprCtx.input info exprCtx.defaultUT
+    let response t = t |> set |> createNewCtx
+    let fetchList t = t|> genList |> fetchEntity  
+    let fetchDict t = t|> genDict |> fetchEntity
+    let fetchFactory cont def = 
+        visitor def |> continueSuccess (fun f -> castFactory def.entityType<| f |> cont)
     match eType with
-        |Simple(t) -> response t
+        |Simple(t) -> t |> fetchEntity |>response
+
         |Entity(def) -> let includedEnt =  fetchEntity typeofEntity
-                        let factory = visitor def |> factoryInfo
-                        Expr.Call(factory,[includedEnt])|> set |> createNewCtx
-        |Array(t) -> handleIncludedType t (fun tp->list.MakeGenericType([tp]|>List.toArray)) 
-                        (fun def -> let listEntities = fetchEntity (list.MakeGenericType ([typeofEntity]|>List.toArray))
-                                    let factory = visitor def |> Expr.Value 
-                                    let entities = Expr.Call(mapInfo,[factory;listEntities])
-                                    Expr.Call(entities,toListInfo,[]) |> set |> createNewCtx)
-        |Map(key,value) -> Success(exprCtx)//handleIncludedType value (fun t-> dict.MakeGenericType([key,t]|>List.toArray))
-                               // (fun def -> let dictEntities = fetchEntity (dict.MakeGenericType([key,typeofEntity]|>List.toArray))
-                               //             let factory = visitor def |> Expr.Value
-                               //             Success<|exprCtx)
+                        def |> fetchFactory
+                         (fun f-> Call pipeRInfo >> MakeGen [typeofEntity;def.entityType]
+                                   >> With [includedEnt; f ] <| () |> response)
+
+        |Array(t) -> handleIncludedType t (fun tp-> tp |> fetchList |> response )
+                      (fun def -> def |> fetchFactory 
+                                   (fun f-> (typeofEntity |> fetchList, f, def) 
+                                              |||> arrayEntityHandler response))
+
+        |Map(key,value) -> handleIncludedType value (fun t -> [key;t] |> fetchDict |> response)
+                            (fun def -> def |> fetchFactory 
+                                         (fun f-> ([key;typeofEntity] |> fetchDict, f ,def)
+                                                   |||> mapEntityHandler response ))
 
