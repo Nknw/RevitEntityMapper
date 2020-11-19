@@ -3,6 +3,8 @@ open System
 open Autodesk.Revit.DB
 open Autodesk.Revit.DB.ExtensibleStorage
 
+type Custom = Y
+
 [<AttributeUsage(AttributeTargets.Class)>]
 [<AllowNullLiteral>]
 type SchemaAttribute(guid:string,name:string)=
@@ -18,10 +20,12 @@ type DocumentationAttribute(doc:string) =
 
 [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Property)>]
 [<AllowNullLiteral>]
-type UnitAttibute(unitType:UnitType,displayType:DisplayUnitType) =
+type UnitAttribute(unitType:UnitType,displayType:DisplayUnitType) =
     inherit Attribute()
     member this.UnitType = unitType
     member this.DisplayType = displayType
+
+    new(c:Custom) = UnitAttribute(UnitType.UT_Custom,DisplayUnitType.DUT_CUSTOM)
 
 [<AttributeUsage(AttributeTargets.Class)>]
 [<AllowNullLiteral>]

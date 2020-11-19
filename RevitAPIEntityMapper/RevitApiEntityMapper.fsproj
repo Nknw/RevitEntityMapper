@@ -2,13 +2,11 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms> 
-
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <NoWarn>$(NoWarn);0760</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Attributes.fs" />
     <Compile Include="Abstractions.fs" />
@@ -16,14 +14,10 @@
     <Compile Include="ExprHelpers.fs" />
     <Compile Include="ExpressionBuilder.fs" />
   </ItemGroup>
-
   <ItemGroup>
-    <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPIUI.dll</HintPath>
-    </Reference>
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 </Project>

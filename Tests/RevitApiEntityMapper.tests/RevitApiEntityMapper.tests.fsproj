@@ -19,7 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="NUnit" Version="2.6.3" />
+    <PackageReference Include="RevitTestFramework" Version="1.19.23">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -28,23 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>D:\Revit Test Framework\2019\nunit.framework.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPIUI.dll</HintPath>
-    </Reference>
     <Reference Include="RevitTestFrameworkTypes">
-      <HintPath>D:\Revit Test Framework\2019\RevitTestFrameworkTypes.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>bin\x64\Debug\net48\RevitTestFrameworkTypes.dll</HintPath>
     </Reference>
     <Reference Include="RTFRevit">
-      <HintPath>D:\Revit Test Framework\2019\RTFRevit.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>bin\x64\Debug\net48\RTFRevit.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

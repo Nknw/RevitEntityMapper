@@ -44,7 +44,7 @@ let toListInfo = <@ lst.ToList ()@> |>genericMethodInfo
 let havingUnitType = [typeof<float>;typeof<XYZ>;typeof<double>;typeof<UV>] 
 
 let readMeta (info:MemberInfo) =
-    match info.GetCustomAttribute<UnitAttibute>() with
+    match info.GetCustomAttribute<UnitAttribute>() with
         |null -> Option.None
         |attr -> Some(attr.DisplayType)
 
