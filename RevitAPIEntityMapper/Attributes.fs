@@ -5,9 +5,9 @@ open Autodesk.Revit.DB.ExtensibleStorage
 
 [<AttributeUsage(AttributeTargets.Class)>]
 [<AllowNullLiteral>]
-type SchemaAttribute(guid:Guid,name:string)=
+type SchemaAttribute(guid:string,name:string)=
     inherit Attribute()  
-    member this.Guid = guid
+    member this.Guid = Guid(guid)
     member this.Name = name
 
 [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Property)>]

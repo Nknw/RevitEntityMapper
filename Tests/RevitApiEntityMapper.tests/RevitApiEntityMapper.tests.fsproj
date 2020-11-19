@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework> 
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile> 
+
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Helpers.fs" />
+    <Compile Include="SimpleTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="prj.rvt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\RevitAPIEntityMapper\RevitApiEntityMapper.fsproj" />
+    <ProjectReference Include="..\..\Samples\ReflectedClasses\ReflectedClasses.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>D:\Revit Test Framework\2019\nunit.framework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="RevitAPI">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2019\RevitAPIUI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitTestFrameworkTypes">
+      <HintPath>D:\Revit Test Framework\2019\RevitTestFrameworkTypes.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="RTFRevit">
+      <HintPath>D:\Revit Test Framework\2019\RTFRevit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

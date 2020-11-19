@@ -5,6 +5,9 @@
     <Platforms>AnyCPU;x64</Platforms> 
 
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);0760</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="Attributes.fs" />

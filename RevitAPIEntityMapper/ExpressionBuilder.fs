@@ -95,8 +95,7 @@ let arrayEntityHandler response entities factory def =
      |> response
 
 let mapEntityHandler response entities factory def =
-    ()
-     |> (Expr.ge)
+    entities |> response
     
     
 
