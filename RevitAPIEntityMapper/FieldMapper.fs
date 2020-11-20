@@ -14,16 +14,17 @@ let writeMeta (info:PropertyInfo) (builder:FieldBuilder) =
         | attr -> builder.SetDocumentation attr.Description
 
 
-let fieldinit entity=
+let creatorinit entity=
     match Schema.Lookup entity.guid with
     | null -> let builder = SchemaBuilder entity.guid
               builder.SetSchemaName entity.name |> ignore
+              builder.SetWriteAccessLevel(AccessLevel.Public)|>ignore
               NeedsCreate(builder, getProps entity)
     |s -> s |> Success |> Complited
 
 
 
-let fieldMapperBody visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo) = 
+let creatorBody visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo) = 
     let (eType,info) = ctx
     let writeMeta builderMethod t = builderMethod (info.Name,t) |> writeMeta info
 
@@ -45,14 +46,6 @@ let fieldMapperBody visitor (builder:SchemaBuilder) (ctx:EntityType*PropertyInfo
         |_ -> Failure("Unhandled")
 
 
-let visitor = visitorBuilder fieldinit fieldMapperBody (fun builder->builder.Finish()|> Success)
+let visitor = visitorBuilder creatorinit creatorBody (fun builder->builder.Finish()|> Success)
 
-let fieldMapper =  visitor |> higthLevelVisitorBuilder
-
-let t = fieldMapper typeof<unit>
-
-
-
-
-
-
+let creator : Type -> Schema Result =  visitor |> higthLevelVisitorBuilder

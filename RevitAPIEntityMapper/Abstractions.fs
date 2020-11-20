@@ -3,6 +3,7 @@ open System.Reflection
 open System
 open System.Collections.Generic
 open Autodesk.Revit.DB.ExtensibleStorage
+open Autodesk.Revit.DB
 open Autodesk.Revit.Mapper
 open System.ComponentModel.DataAnnotations.Schema
 open System.Reflection
@@ -29,9 +30,9 @@ type EntityType =
 
 let log s subs = String.Format(s, List.toArray subs) 
 let typeofEntity = typeof<Entity>
-let getProps entity = entity.entityType.GetProperties(BindingFlags.Instance ||| BindingFlags.Public)
+let getProps entity = entity.entityType.GetProperties(BindingFlags.Public|||BindingFlags.Instance)
                         |> List.ofArray 
-                        |> List.filter (fun p-> not << isNull <|(p.GetCustomAttribute<NotMappedAttribute>()))
+                        |> List.filter (fun p-> isNull (p.GetCustomAttribute<NotMappedAttribute>()))
 
 let pipeline ctor predicate = function 
     |None(t) when predicate(t) -> t|> ctor 
@@ -41,8 +42,24 @@ let dict = typedefof<IDictionary<obj,obj>>
 let genDict tps = dict.MakeGenericType (tps|>List.toArray)
 let list = typedefof<IList<obj>>
 let genList t = list.MakeGenericType ([t]|>List.toArray) 
-let simple = HashSet( [typeof<int>])
-let availableKeys = HashSet<Type>()
+let simple = HashSet( [typeof<int>;
+                       typeof<bool>;
+                       typeof<byte>;
+                       typeof<int16>;
+                       typeof<float>;
+                       typeof<double>;
+                       typeof<Guid>;
+                       typeof<string>;
+                       typeof<UV>;
+                       typeof<ElementId>;
+                       typeof<XYZ>])
+let availableKeys = HashSet([typeof<int>;
+                             typeof<bool>;
+                             typeof<byte>;
+                             typeof<int16>;
+                             typeof<Guid>;
+                             typeof<string>;
+                             typeof<ElementId>])
 
 let getGenerecDef (t:Type) = t.GetGenericArguments()
 
@@ -75,8 +92,8 @@ let arrCtor cont t =
     let gType = (getGenerecDef t).[0]
     gType|> None |> cont |> tailHandler (fun e->Array(e)) 
 
-let isMap = pipeline (mapCtor isSimple) (fun t-> t.IsInterface && t = dict)
-let isArray = pipeline (arrCtor isSimple) (fun t-> t.IsInterface && t = list)
+let isMap = pipeline (mapCtor isSimple) (fun t-> t.IsInterface && t.GetGenericTypeDefinition() = dict)
+let isArray = pipeline (arrCtor isSimple) (fun t-> t.IsInterface && t.GetGenericTypeDefinition() = list)
 
 let getType = isMap >> isArray >> isSimple >> isEntity
 
