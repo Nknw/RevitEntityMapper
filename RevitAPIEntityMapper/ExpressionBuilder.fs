@@ -48,7 +48,7 @@ let readMeta (info:MemberInfo) =
         |null -> Option.None
         |attr -> Some(attr.DisplayType)
 
-let exprInit (factories:Dictionary<Type,obj>) entity = 
+let getterInit (factories:Dictionary<Type,obj>) entity = 
     match factories.TryGetValue entity.entityType with
         |(true,factory) -> factory |> Success |> Complited
         |(false,_) -> let t = entity.entityType
@@ -99,7 +99,7 @@ let mapEntityHandler response entities factory def =
     
     
 
-let expressionBuilder visitor exprCtx (eType,info) = 
+let getterBody visitor exprCtx (eType,info) = 
     let createNewCtx expr = {exprCtx with bindings = expr :: exprCtx.bindings}  |> Success
     let set body = SetProp info >> On exprCtx.output >> To body <| ()
     let fetchEntity = callBuilder exprCtx.input info exprCtx.defaultUT
@@ -126,3 +126,4 @@ let expressionBuilder visitor exprCtx (eType,info) =
                                          (fun f-> ([key;typeofEntity] |> fetchDict, f ,def)
                                                    |||> mapEntityHandler response ))
 
+let getter funcs = visitorBuilder (getterInit funcs) getterBody finallize

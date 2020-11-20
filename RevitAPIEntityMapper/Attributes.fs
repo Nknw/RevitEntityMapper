@@ -3,8 +3,6 @@ open System
 open Autodesk.Revit.DB
 open Autodesk.Revit.DB.ExtensibleStorage
 
-type Custom = Y
-
 [<AttributeUsage(AttributeTargets.Class)>]
 [<AllowNullLiteral>]
 type SchemaAttribute(guid:string,name:string)=
@@ -25,7 +23,7 @@ type UnitAttribute(unitType:UnitType,displayType:DisplayUnitType) =
     member this.UnitType = unitType
     member this.DisplayType = displayType
 
-    new(c:Custom) = UnitAttribute(UnitType.UT_Custom,DisplayUnitType.DUT_CUSTOM)
+    new() = UnitAttribute(UnitType.UT_Custom,DisplayUnitType.DUT_CUSTOM)
 
 [<AttributeUsage(AttributeTargets.Class)>]
 [<AllowNullLiteral>]
@@ -37,3 +35,8 @@ type PermissionsAttribute (read:AccessLevel,write:AccessLevel,vendor:string) =
 
     new (read) = PermissionsAttribute(read,AccessLevel.Public,String.Empty)
     new (write, vendor) = PermissionsAttribute(AccessLevel.Public,write,vendor)
+
+[<AttributeUsage(AttributeTargets.Property)>]
+[<AllowNullLiteral>]
+type ExcludeAttribute () =
+    inherit Attribute ()

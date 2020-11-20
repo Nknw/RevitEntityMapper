@@ -28,7 +28,18 @@ let sndGuid = "c7355511-675d-4079-903d-a0684d8d05d1" |> Guid
 let assertFstGuid = assertThat fstGuid
 let assertSndGuid = assertThat sndGuid
 
-let hasField (s:Schema) = (s.ListFields().First().FieldName) |> assertThat "Some"
+
+let hasTypes (s:Schema) (key,value) = 
+    let field = s.ListFields().First()
+    let checkValue () = field.ValueType |> assertThat value
+    match field.ContainerType with
+     |ContainerType.Map -> checkValue ()
+                           field.KeyType |> assertThat key
+     |ContainerType.Array -> checkValue ()
+     |ContainerType.Simple -> checkValue()
+
+let hasType  s t = 
+    hasTypes s (typeof<unit>,t)
 
 let testCreatorWith should t = 
     match creator t with
@@ -48,3 +59,6 @@ let setUp () =
     |doc when doc.PathName = prj -> checkAll ()
     |doc -> app.OpenAndActivateDocument(prj) |> ignore
             checkAll ()
+
+let boolT = typeof<bool>
+let strT = typeof<string>

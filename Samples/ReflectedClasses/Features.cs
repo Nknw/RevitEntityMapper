@@ -18,10 +18,23 @@ namespace ReflectedClasses
     }
 
     [TestSchema]
-    [Permissions(AccessLevel.Vendor,AccessLevel.Vendor,"ADSK")]
+    [Permissions(AccessLevel.Public,AccessLevel.Vendor,"ADSK")]
     public class Permissions 
     {
         public bool Some { get; set; }
+    }
+
+    [TestSchema]
+    public class Unit
+    {
+        [Unit(UnitType.UT_Length,DisplayUnitType.DUT_CENTIMETERS)]
+        public double Length { get; set; }
+    }
+
+    public class CustomUnit
+    {
+        [Unit]
+        public double Length { get; set; }
     }
 
     [TestSchema]
@@ -32,4 +45,20 @@ namespace ReflectedClasses
         public double Width { get; set; }
     }
 
+    [TestSchema]
+    [Unit(UnitType.UT_Length, DisplayUnitType.DUT_CENTIMETERS)]
+    public class OverrideDefaultUnits
+    {
+        public double Length { get; set; }
+        [Unit(UnitType.UT_Mass,DisplayUnitType.DUT_KILOGRAMS_MASS)]
+        public double Width { get; set; }
+    }
+
+    [TestSchema]
+    public class ExcludeProperty
+    {
+        public string Some { get; set; }
+        [Exclude]
+        public double Length { get; set; }
+    }
 }
