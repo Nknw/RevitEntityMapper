@@ -12,6 +12,7 @@ open GetterBuilder
 open Autodesk.Revit.Mapper
 open System.Linq
 open System.Collections.Generic
+open System.Diagnostics
 
 let location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 let app = RevitTestExecutive.CommandData.Application
@@ -73,3 +74,10 @@ let setUp () =
 
 let boolT = typeof<bool>
 let strT = typeof<string>
+
+let measure action = 
+    let sw = Stopwatch ()
+    sw.Start()
+    action ()
+    sw.Stop()
+    sw.Elapsed

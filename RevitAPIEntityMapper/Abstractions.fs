@@ -129,8 +129,8 @@ let visitorBuilder init step finallize =
             function
             |(state,[]) -> Success(state)
             |(state,h::tail) -> let next eType =
-                                    step { info = h; visitor = visitor ;
-                                           eType = eType ; stepState=state 
+                                    step { info = h; visitor = visitor;
+                                           eType = eType; stepState = state; 
                                            }
                                      |> continueSuccess (fun s-> iter (s,tail))
                                 

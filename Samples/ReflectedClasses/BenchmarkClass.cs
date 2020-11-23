@@ -33,7 +33,7 @@ namespace ReflectedClasses
     }
 
     [Schema("231970cc-4909-44ca-9efd-9fca9d016f8b","test")]
-    public class BenchmarkClass : IRevitEntity
+    public class BenchmarkExtensions : IRevitEntity
     {
         [Field]
         public string Str { get; set; }
@@ -47,9 +47,9 @@ namespace ReflectedClasses
         [Field]
         public Dictionary<string,Included3> Dict { get; set; }
 
-        public static BenchmarkClass CreateDefault()
+        public static BenchmarkExtensions CreateDefault()
         {
-            return new BenchmarkClass()
+            return new BenchmarkExtensions()
             {
                 Str = "str",
                 List = Enumerable.Range(0,500).Select(i=>new Included2() { Str = i.ToString()} ).ToList(),
@@ -60,7 +60,7 @@ namespace ReflectedClasses
     }
 
     [Autodesk.Revit.Mapper.Schema("231970cc-4909-44ca-9efd-9fca9d016f8b", "test")]
-    public class BenchmarkClass2
+    public class BenchmarkMapper
     {
         public string Str { get; set; }
 

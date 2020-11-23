@@ -4,9 +4,10 @@ open ExprHelpers
 open System.Collections.Generic
 open System
 open Autodesk.Revit.DB.ExtensibleStorage
+open Autodesk.Revit.DB
 open FSharp.Quotations
 
-let setterInt (factories:Dictionary<Type,obj>) def =
+let setterInit (factories:Dictionary<Type,obj>) def =
     match factories.TryGetValue def.entityType with
     |(true,factory) -> factory |> Success |> Complited
     |(false,_) -> let t = typeof<Entity>
@@ -20,6 +21,31 @@ let setterInt (factories:Dictionary<Type,obj>) def =
                     bindings = []
                     lambdaExpr = lmd
                     output = Expr.Var ent
-                    defaultUT = Option.None //readMeta entity.entityType
+                    defaultUT = readUnit def.entityType
                   }
                   NeedsCreate(ctx)
+
+let miSet = 
+    let e = Entity ()
+    <@ e.Set("",obj()) @> |> genericMethodInfo
+
+let miutSet = 
+    let e = Entity ()
+    <@ e.Set("",obj(),DisplayUnitType.DUT_1_RATIO) @> |> genericMethodInfo
+
+let fetch ctx _ =
+    Expr.PropertyGet(ctx.stepState.input ,ctx.info)
+
+let response ctx (body:Expr) = 
+    fetchUnitType 
+     (fun optUT -> 
+        match optUT with
+        |Some(ut) -> Call miutSet >> MakeGen[body.Type] >> With [Val ctx.info.Name; body; Val ut] <| () 
+                     |> createNewCtx ctx.stepState
+        |Option.None -> Call miSet >> MakeGen[body.Type] >> With [Val ctx.info.Name; body] <| ()
+                        |> createNewCtx ctx.stepState)
+     ctx
+
+let setterBody = exprBody fetch response (fun def -> (def.entityType,typeofEntity)) 
+
+let setterBuilder factories = visitorBuilder (setterInit factories) setterBody (finallize factories)
