@@ -4,12 +4,13 @@ open ReflectedClasses
 open Helpers
 open Autodesk.Revit.DB.ExtensibleStorage
 open Abstractions
+open System
 
 [<TestFixture>]
 type CreateTests() = 
 
     [<SetUp>]
-    member this.SetUp() = setUp ()
+    member this.SetUp() = setUp()
     
     [<Test>]
     member this.ShouldCreateSimpleSchema() =
@@ -19,7 +20,7 @@ type CreateTests() =
     [<Test>]
     member this.ShouldCreateWithEncludedEntity() =
         typeof<IncludedEntity> |> testCreatorWith 
-                                  (fun s->let included = Schema.Lookup(fstGuid)
+                                  (fun s->let included = Schema.Lookup(Guid("56f48442-ae75-4a01-98c6-a3b6a4d4bc8f"))
                                           hasType s typeofEntity
                                           hasType included boolT)
 

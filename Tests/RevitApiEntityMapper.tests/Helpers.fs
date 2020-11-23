@@ -4,30 +4,31 @@ open System.Reflection
 open RTF.Applications
 open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.DB
-open System
+open ReflectedClasses
 open NUnit.Framework
 open FieldMapper
 open Abstractions
+open GetterBuilder
+open Autodesk.Revit.Mapper
 open System.Linq
+open System.Collections.Generic
 
 let location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+let app = RevitTestExecutive.CommandData.Application
 
-let execInTransaction doc change =
-    use tr = new Transaction(doc,"test")
+let execInTransaction change =
+    use tr = new Transaction(app.ActiveUIDocument.Document,"test")
     (tr.Start()) |> ignore
     change ()
     tr.Commit() |> ignore
 
+let getWall () = let collector =  FilteredElementCollector(app.ActiveUIDocument.Document)
+                 collector.OfClass(typeof<Wall>).FirstElement()
+
 let prj = Path.Combine([location;"prj.rvt"]|>List.toArray)
 
 let assertThat (is:'a) (some:'a) =  Assert.That(some ,Is.EqualTo(is))
-
-let fstGuid = "e7fd718b-d7f5-4dce-ac33-06e138749344" |> Guid
-let sndGuid = "c7355511-675d-4079-903d-a0684d8d05d1" |> Guid
-
-let assertFstGuid = assertThat fstGuid
-let assertSndGuid = assertThat sndGuid
-
+let assertThasEquivalent (is:'a) (some:'a) = Assert.That(some, Is.EqualTo(is))
 
 let hasTypes (s:Schema) (key,value) = 
     let field = s.ListFields().First()
@@ -46,19 +47,29 @@ let testCreatorWith should t =
     |Success(s) -> should(s)
     |Failure(s) -> failwith(s)
 
+let testGetterWith should t = 
+    let schema = match creator t with 
+                 | Success(s) -> s
+                 | Failure(s) -> failwith(s)
+    match getterBuilder (Dictionary()) t with
+    |Success(func) -> should((func,schema))
+    |Failure(s) -> failwith(s)
+
 let setUp () = 
-    let app = RevitTestExecutive.CommandData.Application
-    let doc = app.ActiveUIDocument
+    let doc = app.ActiveUIDocument.Document
     let checkSchema guid = 
         match Schema.Lookup(guid) with
         |null-> null |> ignore
         |sc -> failwith (sc.GUID.ToString()+"exists")
-    let checkAll () = fstGuid |> checkSchema
-                      sndGuid |> checkSchema  
-    match doc.Document with
-    |doc when doc.PathName = prj -> checkAll ()
+    let checkAll () = 
+        typeof<Bool>.Assembly.GetTypes() 
+        |> Seq.map (fun t-> t.GetCustomAttribute<SchemaAttribute>())
+        |> Seq.filter (fun attr -> not << isNull <| attr)
+        |> Seq.map (fun attr -> checkSchema attr.Guid)
+    match doc with
+    |doc when doc.PathName = prj -> ignore ()
     |doc -> app.OpenAndActivateDocument(prj) |> ignore
-            checkAll ()
+            checkAll () |> ignore
 
 let boolT = typeof<bool>
 let strT = typeof<string>

@@ -6,9 +6,9 @@ open Autodesk.Revit.DB
 
 [<TestFixture>]
 type FeatureTests () =
-    
+
     [<SetUp>]
-    member this.SetUp()= setUp ()
+    member this.SetUp() = setUp()
 
     [<Test>]
     member this.ShouldWriteDocumentation () = 

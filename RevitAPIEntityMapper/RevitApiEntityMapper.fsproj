@@ -12,9 +12,10 @@
     <Compile Include="Abstractions.fs" />
     <Compile Include="FieldMapper.fs" />
     <Compile Include="ExprHelpers.fs" />
-    <Compile Include="ExpressionBuilder.fs" />
+    <Compile Include="GetterBuilder.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
+    <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
   </ItemGroup>
 </Project>

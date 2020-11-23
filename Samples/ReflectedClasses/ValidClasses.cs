@@ -7,37 +7,42 @@ using Autodesk.Revit.Mapper;
 
 namespace ReflectedClasses
 {
-    [TestSchema]
+    [Schema("56f48442-ae75-4a01-98c6-a3b6a4d4bc8f","test")]
     public class Bool
     {
+        public Bool() 
+        { }
+
+        public Bool(bool some) => Some = some;
+            
         public bool Some { get; set; }
     }
 
-    [TestSchema2]
+    [Schema("e6e9bb2d-5041-4542-a73f-65b025db20ce", "test")]
     public class IncludedEntity
     {
         public Bool Some { get; set; }
     }
 
-    [TestSchema]
+    [Schema("f36e7af2-ffcc-44d9-a912-28d7da92fe3c", "test")]
     public class Dict
     {
         public IDictionary<string,bool> Some { get; set; }
     }
 
-    [TestSchema]
+    [Schema("f9ce5303-a8f1-4793-a855-0f8b30c5978e", "test")]
     public class Lst
     {
         public IList<bool> Some { get; set; }
     }
 
-    [TestSchema2]
+    [Schema("0f1d6cfd-c36b-4208-b689-25a9dd61387e", "test")]
     public class IncludedEntityInDictionary
     {
         public IDictionary<string,Bool> Some { get; set; }
     }
 
-    [TestSchema2]
+    [Schema("bc6869b6-3ef0-44dc-bd13-16cdbc87054c", "test")]
     public class IncludedEntityList
     {
         public IList<Bool> Some { get; set; }
