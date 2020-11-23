@@ -43,4 +43,9 @@ type CreateTests() =
     member this.ShouldCreateListWithEncludedEntities () =
         typeof<IncludedEntityList> |> testCreatorWith
                                                (fun s -> hasType s typeofEntity)
+
+    [<Test>]
+    member this.ShouldCreateSchemaWithTwoEqualsIncluededSchemas () =
+        typeof<SameIncludedEntity> |> testCreatorWith 
+                                               (fun s -> hasType s typeofEntity)
         

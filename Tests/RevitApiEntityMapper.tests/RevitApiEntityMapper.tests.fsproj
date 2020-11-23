@@ -6,12 +6,16 @@
 
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);0760</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="CreateTests.fs" />
     <Compile Include="FeatureTests.fs" />
     <Compile Include="GetterTests.fs" />
+    <Compile Include="BenchmarkTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +45,9 @@
     </Reference>
     <Reference Include="RTFRevit">
       <HintPath>bin\x64\Debug\net48\RTFRevit.dll</HintPath>
+    </Reference>
+    <Reference Include="VCExtensibleStorageExtension">
+      <HintPath>..\..\ESExtensions\VCExtensibleStorageExtension.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

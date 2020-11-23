@@ -10,11 +10,6 @@ namespace ReflectedClasses
     [Schema("56f48442-ae75-4a01-98c6-a3b6a4d4bc8f","test")]
     public class Bool
     {
-        public Bool() 
-        { }
-
-        public Bool(bool some) => Some = some;
-            
         public bool Some { get; set; }
     }
 
@@ -22,6 +17,13 @@ namespace ReflectedClasses
     public class IncludedEntity
     {
         public Bool Some { get; set; }
+    }
+
+    [Schema("396c663b-3b48-47d7-bbea-e62ed0958c07","test")]
+    public class SameIncludedEntity
+    {
+        public Bool Some { get; set; }
+        public Bool Some2 { get; set; }
     }
 
     [Schema("f36e7af2-ffcc-44d9-a912-28d7da92fe3c", "test")]

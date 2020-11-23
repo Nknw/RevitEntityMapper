@@ -2,6 +2,9 @@
 open System.Reflection
 open FSharp.Quotations
 open System
+open System.Collections.Generic
+open Abstractions
+open FSharp.Quotations.Evaluator
 
 let getMethodInfo (e : Expr<'T>) : MethodInfo =
   match e with
@@ -11,9 +14,15 @@ let getMethodInfo (e : Expr<'T>) : MethodInfo =
 let genericMethodInfo (e : Expr<'T>) : MethodInfo = let typedInfo = getMethodInfo e
                                                     typedInfo.GetGenericMethodDefinition ()
 
-let fsFuncType = typedefof<int->int>
+let makeGenType types (m:Type) = m.MakeGenericType (types|>List.toArray)
 
-let pipeRInfo = <@1 |> ignore @> |> genericMethodInfo
+let fsFuncType = typedefof<int->int>
+let csFuncType = typedefof<Func<int,int>>
+let kvPairType = typedefof<KeyValuePair<obj,obj>>
+
+let keyInfo (t:Type) = t.GetProperty("Key")
+
+let valueInfo (t:Type) = t.GetProperty("Value")
 
 type 'info ExprContext = {
     obj: Option<Expr>
@@ -21,7 +30,7 @@ type 'info ExprContext = {
     }
 
 let Call (mi:MethodInfo) () =
-    {info = mi;obj = None}
+    {info = mi;obj = Option.None}
 
 let On obj ctx =
     {ctx with obj = Some(obj)}
@@ -29,7 +38,7 @@ let On obj ctx =
 let With args (ctx:ExprContext<MethodInfo>) = 
     match ctx.obj with
         |Some(o) -> Expr.Call(o,ctx.info,args)
-        |None -> Expr.Call(ctx.info,args)
+        |Option.None -> Expr.Call(ctx.info,args)
 
 let WithConst args ctx =
     let values = args |> List.map (fun v->Expr.Value(v))
@@ -45,13 +54,28 @@ let MakeGen types (ctx:ExprContext<MethodInfo>) =
                   {ctx with info  = gDef}
 
 let SetProp (pi:PropertyInfo) () =
-    {info= pi;obj=None}
+    {info= pi;obj=Option.None}
 
 
 let To value (ctx:ExprContext<PropertyInfo>) = 
     match ctx.obj with
         |Some(o) -> Expr.PropertySet(o,ctx.info,value)
-        |None -> Expr.PropertySet(ctx.info,value)
+        |Option.None -> Expr.PropertySet(ctx.info,value)
 
 let Val constant = Expr.Value constant
 
+
+type 'a ExpressionContext = {
+    lambdaExpr: Expr -> Expr
+    bindings: Expr list
+    output : Expr
+    input: Expr
+    defaultUT : Option<'a>
+    }
+
+let finallize (factories:Dictionary<Type,obj>) ctx = 
+    let bindings = ctx.bindings |> List.reduce (fun p n -> Expr.Sequential(p,n))
+    let lambda = Expr.Sequential(bindings,ctx.output) |> ctx.lambdaExpr
+    let factory = lambda.CompileUntyped()
+    factories.Add(ctx.output.Type,factory)
+    factory |> Success

@@ -108,7 +108,7 @@ type 'k Result =
 
 type InitResult<'a,'b> = 
     |Complited of 'a
-    |NeedsCreate of 'b * PropertyInfo list
+    |NeedsCreate of 'b 
 
 let continueSuccess cont = function
     | Success(s) -> cont s
@@ -116,25 +116,33 @@ let continueSuccess cont = function
 
 let getPropType (prop:PropertyInfo) = prop.PropertyType
 
-let visitorBuilder init body finallize =
+type StepContext<'a,'b> = {
+    info : PropertyInfo
+    visitor : EntityDef -> 'a Result 
+    eType : EntityType
+    stepState : 'b
+    }
+
+let visitorBuilder init step finallize =
     let rec visitor entity =
         let rec iter  = 
             function
             |(state,[]) -> Success(state)
-            |(state,h::tail) -> let next some =
-                                    some |> body visitor state
-                                         |> continueSuccess (fun s-> iter (s,tail))
+            |(state,h::tail) -> let next eType =
+                                    step { info = h; visitor = visitor ;
+                                           eType = eType ; stepState=state 
+                                           }
+                                     |> continueSuccess (fun s-> iter (s,tail))
                                 
                                 match h |> getPropType |> None |> getType with
                                 | Error(s) -> Failure(s)
-                                | Entity(_) | Map(_) | Array(_) | Simple(_) as t -> (t,h) |> next
+                                | Entity(_) | Map(_) | Array(_) | Simple(_) as t -> t |> next
                                 | _ -> Failure("Unhandled")
                                        
         match entity |> init with 
-        | NeedsCreate(s,props) -> iter (s,props) |> continueSuccess finallize
+        | NeedsCreate(s) -> iter (s,getProps entity) |> continueSuccess finallize
         | Complited(cs) -> cs
     visitor
-
 
 let higthLevelVisitorBuilder visitor =
     let hlVisitor t =
@@ -143,4 +151,3 @@ let higthLevelVisitorBuilder visitor =
         | Entity(e) -> e |> visitor 
         | _ -> Failure("Unhandled")
     hlVisitor
-

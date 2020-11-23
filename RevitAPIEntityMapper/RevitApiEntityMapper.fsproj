@@ -13,6 +13,8 @@
     <Compile Include="FieldMapper.fs" />
     <Compile Include="ExprHelpers.fs" />
     <Compile Include="GetterBuilder.fs" />
+    <Compile Include="SetterBuilder.fs" />
+    <Compile Include="Mappers.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />

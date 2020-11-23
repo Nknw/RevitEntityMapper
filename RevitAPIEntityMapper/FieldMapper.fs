@@ -46,28 +46,28 @@ let creatorinit entity=
               builder.SetSchemaName entity.name |> ignore
               builder.SetWriteAccessLevel(AccessLevel.Public)|>ignore
               writeSchemaBuilderMeta builder t
-              NeedsCreate(getCreatorContext builder t, getProps entity)
+              NeedsCreate(getCreatorContext builder t)
     |s -> s |> Success |> Complited
 
-let creatorBody visitor ctx ((eType,info):EntityType*PropertyInfo) = 
-    let writeMeta builderMethod t = builderMethod (info.Name,t) |> writeMeta ctx.defaultUT info 
+let creatorBody ctx = 
+    let writeMeta builderMethod t = builderMethod (ctx.info.Name,t) |> writeMeta ctx.stepState.defaultUT ctx.info 
 
     let handleEntity builderMethod def = 
-        visitor def 
+        ctx.visitor def 
         |> continueSuccess (fun _ -> (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
-                                     ctx|> Success)
+                                     ctx.stepState|> Success)
     let handleCollection builderMethod = 
         function
         |ValueType(tp)->writeMeta builderMethod tp |> ignore
-                        Success(ctx)
+                        Success(ctx.stepState)
         |EntityType(def)->handleEntity builderMethod def
 
-    match eType with 
-    |Simple(t) -> writeMeta ctx.builder.AddSimpleField t |> ignore
-                  Success(ctx)
-    |Array(t) -> handleCollection ctx.builder.AddArrayField t
-    |Entity(def) -> handleEntity ctx.builder.AddSimpleField def
-    |Map(key,value) -> handleCollection (fun (s,t)-> ctx.builder.AddMapField(s,key,t)) value
+    match ctx.eType with 
+    |Simple(t) -> writeMeta ctx.stepState.builder.AddSimpleField t |> ignore
+                  Success(ctx.stepState)
+    |Array(t) -> handleCollection ctx.stepState.builder.AddArrayField t
+    |Entity(def) -> handleEntity ctx.stepState.builder.AddSimpleField def
+    |Map(key,value) -> handleCollection (fun (s,t)-> ctx.stepState.builder.AddMapField(s,key,t)) value
     |_ -> Failure("Unhandled")
 
 let visitor = visitorBuilder creatorinit creatorBody (fun ctx -> ctx.builder.Finish() |> Success)
