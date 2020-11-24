@@ -1,10 +1,11 @@
-﻿module FieldMapper
+﻿module Creator
+open TypeResolver
+open Visitor
 open System.Reflection
 open System
 open Autodesk.Revit.DB
 open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.Mapper
-open Abstractions
 
 type CreatorContext = {
     defaultUT : Option<UnitType>
@@ -25,7 +26,7 @@ let writeMeta defaultUT (info:PropertyInfo) (builder:FieldBuilder) =
 
 let getCreatorContext (builder:SchemaBuilder) (t:Type) = 
     match t.GetCustomAttribute<UnitAttribute> () with
-    |null -> { builder=builder ; defaultUT = Option.None }
+    |null -> { builder=builder ; defaultUT = None }
     |attr -> { builder=builder ; defaultUT = Some(attr.UnitType) }
 
 let writeSchemaBuilderMeta (builder:SchemaBuilder) (t:Type) =
@@ -44,7 +45,6 @@ let creatorinit entity=
     | null -> let builder = SchemaBuilder entity.guid
               let t = entity.entityType
               builder.SetSchemaName entity.name |> ignore
-              builder.SetWriteAccessLevel(AccessLevel.Public)|>ignore
               writeSchemaBuilderMeta builder t
               NeedsCreate(getCreatorContext builder t)
     |s -> s |> Success |> Complited

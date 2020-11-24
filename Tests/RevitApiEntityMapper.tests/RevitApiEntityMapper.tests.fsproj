@@ -15,6 +15,7 @@
     <Compile Include="CreateTests.fs" />
     <Compile Include="FeatureTests.fs" />
     <Compile Include="GetterTests.fs" />
+    <Compile Include="SetterTests.fs" />
     <Compile Include="BenchmarkTests.fs" />
   </ItemGroup>
 

@@ -9,9 +9,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Attributes.fs" />
-    <Compile Include="Abstractions.fs" />
-    <Compile Include="FieldMapper.fs" />
+    <Compile Include="TypeResolver.fs" />
+    <Compile Include="Visitor.fs" />
+    <Compile Include="Creator.fs" />
     <Compile Include="ExprHelpers.fs" />
+    <Compile Include="ExpressionVisitor.fs" />
     <Compile Include="GetterBuilder.fs" />
     <Compile Include="SetterBuilder.fs" />
     <Compile Include="Mappers.fs" />

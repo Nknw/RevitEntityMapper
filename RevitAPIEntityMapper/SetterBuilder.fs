@@ -1,6 +1,8 @@
 ﻿module SetterBuilder
-open Abstractions
+open TypeResolver
+open Visitor
 open ExprHelpers
+open ExpressionVisitor
 open System.Collections.Generic
 open System
 open Autodesk.Revit.DB.ExtensibleStorage
@@ -40,12 +42,15 @@ let response ctx (body:Expr) =
     fetchUnitType 
      (fun optUT -> 
         match optUT with
-        |Some(ut) -> Call miutSet >> MakeGen[body.Type] >> With [Val ctx.info.Name; body; Val ut] <| () 
+        |Some(ut) -> Call miutSet >> MakeGen[body.Type] >> On ctx.stepState.output >> With [Val ctx.info.Name; body; Val ut] <| () 
                      |> createNewCtx ctx.stepState
-        |Option.None -> Call miSet >> MakeGen[body.Type] >> With [Val ctx.info.Name; body] <| ()
+        |Option.None -> Call miSet >> MakeGen[body.Type] >> On ctx.stepState.output >> With [Val ctx.info.Name; body] <| ()
                         |> createNewCtx ctx.stepState)
      ctx
 
 let setterBody = exprBody fetch response (fun def -> (def.entityType,typeofEntity)) 
 
-let setterBuilder factories = visitorBuilder (setterInit factories) setterBody (finallize factories)
+let setterBuilder factories = 
+    visitorBuilder (setterInit factories) setterBody (fun ctx -> let factory = finallize ctx
+                                                                 factories.Add(ctx.input.Type,factory)
+                                                                 factory |> Success) |> higthLevelVisitorBuilder

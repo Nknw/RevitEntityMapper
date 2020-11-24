@@ -6,13 +6,14 @@ open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.DB
 open ReflectedClasses
 open NUnit.Framework
-open FieldMapper
-open Abstractions
+open Creator
+open Visitor
 open GetterBuilder
 open Autodesk.Revit.Mapper
 open System.Linq
 open System.Collections.Generic
 open System.Diagnostics
+open SetterBuilder
 
 let location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 let app = RevitTestExecutive.CommandData.Application
@@ -53,6 +54,14 @@ let testGetterWith should t =
                  | Success(s) -> s
                  | Failure(s) -> failwith(s)
     match getterBuilder (Dictionary()) t with
+    |Success(func) -> should((func,schema))
+    |Failure(s) -> failwith(s)
+
+let testSetterWith should t =
+    let schema = match creator t with 
+                 | Success(s) -> s
+                 | Failure(s) -> failwith(s)
+    match setterBuilder (Dictionary()) t with
     |Success(func) -> should((func,schema))
     |Failure(s) -> failwith(s)
 

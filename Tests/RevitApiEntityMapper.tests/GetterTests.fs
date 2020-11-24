@@ -14,7 +14,7 @@ type GetterTests () =
     member this.SetUp() = setUp()
 
     [<Test>]
-    member this.ShouldGetValueProp () =
+    member this.ShouldGetValue () =
         typeof<Bool> 
          |> testGetterWith 
             (fun (func,schema) -> let factory = func :?> Entity -> Bool 
@@ -77,7 +77,7 @@ type GetterTests () =
                                   pair.Value |> assertThat true)
 
     [<Test>]
-    member this.ShouldGetDictWithEncludedEntity () =
+    member this.ShouldGetDictWithIncludedEntity () =
         typeof<IncludedEntityInDictionary>
          |> testGetterWith 
              (fun (func,schema) ->let factory = func :?> Entity -> IncludedEntityInDictionary 

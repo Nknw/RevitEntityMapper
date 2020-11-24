@@ -3,7 +3,7 @@ open NUnit.Framework
 open ReflectedClasses
 open Helpers
 open Autodesk.Revit.DB.ExtensibleStorage
-open Abstractions
+open TypeResolver
 open System
 
 [<TestFixture>]
@@ -18,7 +18,7 @@ type CreateTests() =
                         (fun s-> hasType s boolT)
     
     [<Test>]
-    member this.ShouldCreateWithEncludedEntity() =
+    member this.ShouldCreateWithIncludedEntity() =
         typeof<IncludedEntity> |> testCreatorWith 
                                   (fun s->let included = Schema.Lookup(Guid("56f48442-ae75-4a01-98c6-a3b6a4d4bc8f"))
                                           hasType s typeofEntity
@@ -35,12 +35,12 @@ type CreateTests() =
                         (fun s -> hasTypes s (strT,boolT))
 
     [<Test>]
-    member this.ShouldCreateDictWithEncludedEntities () =
+    member this.ShouldCreateDictWithIncludedEntities () =
         typeof<IncludedEntityInDictionary> |> testCreatorWith
                                                (fun s-> hasTypes s (strT,typeofEntity))
 
     [<Test>]
-    member this.ShouldCreateListWithEncludedEntities () =
+    member this.ShouldCreateListWithIncludedEntities () =
         typeof<IncludedEntityList> |> testCreatorWith
                                                (fun s -> hasType s typeofEntity)
 

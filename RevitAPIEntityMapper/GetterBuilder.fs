@@ -1,14 +1,13 @@
 ﻿module GetterBuilder
-open System
-open Abstractions
+open TypeResolver
+open Visitor
 open ExprHelpers
-open Autodesk.Revit.Mapper
+open ExpressionVisitor
+open System
 open System.Collections.Generic
-open Autodesk.Revit.DB.ExtensibleStorage
 open FSharp.Quotations
-open System.Reflection
+open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.DB
-open System.Linq
 
 let miGet = 
     let e = Entity ()
@@ -46,9 +45,11 @@ let getterBody =
          (fun optUT-> 
             match optUT with
             |Some(ut) -> Call miutGet >> MakeGen [t] >> On ctx.stepState.input >> With [Val ctx.info.Name;Val ut] <| ()
-            |Option.None -> Call miGet >> MakeGen [t] >> On ctx.stepState.input >> WithConst [ctx.info.Name] <| ())
+            |None -> Call miGet >> MakeGen [t] >> On ctx.stepState.input >> WithConst [ctx.info.Name] <| ())
          ctx
     exprBody fetch response (fun def -> (typeofEntity,def.entityType))
 
-let getterBuilder funcs = visitorBuilder (getterInit funcs) getterBody (finallize funcs) |> higthLevelVisitorBuilder
-
+let getterBuilder factories = 
+    visitorBuilder (getterInit factories) getterBody (fun ctx ->let factory =  finallize ctx
+                                                                factories.Add(ctx.output.Type,factory)
+                                                                factory |> Success) |> higthLevelVisitorBuilder
