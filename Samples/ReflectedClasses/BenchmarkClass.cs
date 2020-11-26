@@ -35,5 +35,16 @@ namespace ReflectedClasses
         public IList<Included2> List { get; set; }
 
         public IDictionary<string,Included3> Dict { get; set; }
+
+        public static BenchmarkMapper CreateDefault()
+        {
+            return new BenchmarkMapper()
+            {
+                Str = "str",
+                List = Enumerable.Range(0, 500).Select(i => new Included2() { Str = i.ToString() }).ToList(),
+                Dict = Enumerable.Range(0, 500).ToDictionary(k => k.ToString(), v => new Included3() { Str = v.ToString() }),
+                Entity = new Included() { Str = "" }
+            };
+        }
     }
 }

@@ -11,7 +11,7 @@ open FSharp.Quotations
 
 let setterInit (factories:Dictionary<Type,obj>) def =
     match factories.TryGetValue def.entityType with
-    |(true,factory) -> factory |> Success |> Complited
+    |(true,factory) -> factory |> Complited
     |(false,_) -> let t = typeof<Entity>
                   let constructor = [typeof<Guid>] |> List.toArray |> t.GetConstructor
                   let obj = Var ("obj", def.entityType)
@@ -53,4 +53,4 @@ let setterBody = exprBody fetch response (fun def -> (def.entityType,typeofEntit
 let setterBuilder factories = 
     visitorBuilder (setterInit factories) setterBody (fun ctx -> let factory = finallize ctx
                                                                  factories.Add(ctx.input.Type,factory)
-                                                                 factory |> Success) |> higthLevelVisitorBuilder
+                                                                 factory)

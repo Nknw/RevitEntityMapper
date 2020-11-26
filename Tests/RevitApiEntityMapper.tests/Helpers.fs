@@ -45,25 +45,15 @@ let hasType  s t =
     hasTypes s (typeof<unit>,t)
 
 let testCreatorWith should t = 
-    match creator t with
-    |Success(s) -> should(s)
-    |Failure(s) -> failwith(s)
+    creator t |> should
 
 let testGetterWith should t = 
-    let schema = match creator t with 
-                 | Success(s) -> s
-                 | Failure(s) -> failwith(s)
-    match getterBuilder (Dictionary()) t with
-    |Success(func) -> should((func,schema))
-    |Failure(s) -> failwith(s)
+    let schema = creator t 
+    getterBuilder (Dictionary()) t |> should schema
 
 let testSetterWith should t =
-    let schema = match creator t with 
-                 | Success(s) -> s
-                 | Failure(s) -> failwith(s)
-    match setterBuilder (Dictionary()) t with
-    |Success(func) -> should((func,schema))
-    |Failure(s) -> failwith(s)
+    let schema = creator t 
+    setterBuilder (Dictionary()) t |> should schema
 
 let setUp () = 
     let doc = app.ActiveUIDocument.Document

@@ -17,7 +17,7 @@ type SetterTests ()=
     member this.ShouldSetValue () = 
         typeof<Bool> 
            |> testSetterWith 
-              (fun (func,schema) -> let factory = func :?> Bool -> Entity 
+              (fun schema func ->   let factory = func :?> Bool -> Entity 
                                     let obj = Bool()
                                     obj.Some <- true
                                     let e = factory obj
@@ -27,7 +27,7 @@ type SetterTests ()=
     member this.ShouldSetWithIncludedEntity () =
         typeof<IncludedEntity> 
         |> testSetterWith 
-           (fun (func,schema) -> let factory = func :?> IncludedEntity -> Entity
+           (fun schema func ->   let factory = func :?> IncludedEntity -> Entity
                                  let obj = IncludedEntity ()
                                  let included = Bool()
                                  included.Some <- true
@@ -39,7 +39,7 @@ type SetterTests ()=
     member this.ShouldSetListValues () =
         typeof<Lst> 
         |> testSetterWith 
-           (fun (func,schema) -> let factory = func :?> Lst -> Entity
+           (fun schema func ->   let factory = func :?> Lst -> Entity
                                  let obj = Lst()
                                  let included = List<bool>(seq{true})
                                  obj.Some <- included
@@ -50,7 +50,7 @@ type SetterTests ()=
     member this.ShouldSetListWithIncludedEntities () =
            typeof<IncludedEntityList> 
            |> testSetterWith 
-              (fun (func,schema) -> let factory = func :?> IncludedEntityList -> Entity
+              (fun schema func ->   let factory = func :?> IncludedEntityList -> Entity
                                     let obj = IncludedEntityList()
                                     let included = List<Bool>(seq{Bool()})
                                     obj.Some <- included
@@ -61,7 +61,7 @@ type SetterTests ()=
     member this.ShouldSetDictWithValues () =
         typeof<Dict> 
         |> testSetterWith 
-           (fun (func,schema) -> let factory = func :?> Dict -> Entity
+           (fun schema func ->   let factory = func :?> Dict -> Entity
                                  let obj = Dict()
                                  let included = Dictionary<string,bool>()
                                  included.Add("key",true)
@@ -75,7 +75,7 @@ type SetterTests ()=
     member this.ShouldSetDictWithIncludedEntities () =
         typeof<IncludedEntityInDictionary> 
         |> testSetterWith 
-           (fun (func,schema) -> let factory = func :?> IncludedEntityInDictionary -> Entity
+           (fun schema func ->   let factory = func :?> IncludedEntityInDictionary -> Entity
                                  let obj = IncludedEntityInDictionary()
                                  let included = Dictionary<string,Bool>()
                                  let bl = Bool()

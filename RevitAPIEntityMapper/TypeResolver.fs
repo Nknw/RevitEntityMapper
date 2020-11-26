@@ -77,7 +77,6 @@ type EntityType =
     |Entity of EntityDef
     |Simple of Type
     |Init of Type
-    |Error of string
 
 let pipeline ctor predicate = function 
     |Init(t) when predicate(t) -> t|> ctor 
@@ -94,12 +93,12 @@ let fetchAttribute<'attr when 'attr:>Attribute and 'attr:null> handler (mi:Membe
 
 let getGenerecDef (t:Type) = t.GetGenericArguments()
 
-let log s subs = String.Format(s, List.toArray subs) 
+let log s subs = String.Format(s, List.toArray subs)
 
 let entityCtor  _ (t:Type) = 
     let schema =  t.GetCustomAttribute<SchemaAttribute>()
     match schema with
-    | null -> Error(log "{0} has no schema attribute" [t])
+    | null -> Init(t)
     | attr -> Entity({entityType=t;guid=attr.Guid;name = attr.Name})
 
 let simpleCtor _ t = Simple(t)
@@ -111,15 +110,14 @@ let isSimple = isValue >> isEntity
 let tailHandler ctor = function
     | Simple(t) -> t |> ValueType |>ctor
     | Entity(def) -> def|> EntityType |> ctor 
-    | Error(_) as e -> e
-    | _ -> Error("Input type not defined")
+    | _ -> raise (new MapperException("Input type not defined"))
 
 let mapCtor cont t =
     let gTypes = getGenerecDef t
     let key = gTypes.[0]
     let value = gTypes.[1]
     match availableKeys.Contains key with
-    |false -> Error(log "Unallowed dictionary key {0}" [key])
+    |false -> raise( new MapperException (log "Unallowed dictionary key {0}" [key]))
     |true -> value|> Init |> cont |> tailHandler (fun e->Map(key,e)) 
 
 let arrCtor cont t = 

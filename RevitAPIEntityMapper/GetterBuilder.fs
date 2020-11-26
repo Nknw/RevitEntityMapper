@@ -19,7 +19,7 @@ let miutGet =
    
 let getterInit (factories:Dictionary<Type,obj>) entity = 
     match factories.TryGetValue entity.entityType with
-    |(true,factory) -> factory |> Success |> Complited
+    |(true,factory) -> factory |> Complited
     |(false,_) -> let t = entity.entityType
                   let constructor = [] |> List.toArray |> t.GetConstructor
                   let obj = Var ("obj", t)
@@ -52,4 +52,4 @@ let getterBody =
 let getterBuilder factories = 
     visitorBuilder (getterInit factories) getterBody (fun ctx ->let factory =  finallize ctx
                                                                 factories.Add(ctx.output.Type,factory)
-                                                                factory |> Success) |> higthLevelVisitorBuilder
+                                                                factory)

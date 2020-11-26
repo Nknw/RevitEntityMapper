@@ -52,7 +52,7 @@ let exprBody fetch response typeResolver ctx =
     let fetchDict t = t |> genDict |> fetch ctx
     let continueFromFactory cont def = 
         let (fromType,toType) = typeResolver def
-        ctx.visitor def |> continueSuccess (fun f -> castFactory fromType toType <| f |> cont fromType toType )
+        ctx.visitor def |> (fun f -> castFactory fromType toType <| f |> cont fromType toType )
     match ctx.eType with
     |Simple(t) -> t |> fetch ctx |> response ctx
 
@@ -81,6 +81,6 @@ let fetchUnitType callback ctx =
              |Some(_) as ut -> callback ut
              |None -> match ctx.stepState.defaultUT with
                              | Some(_) as ut -> callback ut
-                             | None -> failwith ""
+                             | None -> raise(new MapperException(log "prop {0} ro class must have UnitAttribute" [ctx.info.Name]))
 
-let createNewCtx exprCtx expr = {exprCtx with bindings = expr :: exprCtx.bindings}  |> Success
+let createNewCtx exprCtx expr = {exprCtx with bindings = expr :: exprCtx.bindings}

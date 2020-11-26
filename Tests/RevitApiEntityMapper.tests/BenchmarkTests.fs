@@ -6,10 +6,9 @@ open System
 open Autodesk.Revit.DB.ExtensibleStorage
 open System.Collections.Generic
 open System.Linq
-open VCExtensibleStorageExtension.ElementExtensions
 open System.IO
 open GetterBuilder
-open Visitor
+open SetterBuilder
 
 [<TestFixture>]
 type BenchmarkTests () = 
@@ -57,24 +56,20 @@ type BenchmarkTests () =
     [<Test>]
     member this.GetterTests()=
         let getter = getterBuilder (Dictionary<Type,obj>())
-        match getter typeof<BenchmarkMapper> with
-        |Failure(s) -> failwith s
-        |Success(func) -> 
-                          let wall = getWall ()
-                          let getEntity () = wall.GetEntity(Schema.Lookup("231970cc-4909-44ca-9efd-9fca9d016f8b"|>Guid))
-                          let factory = func :?> Entity -> BenchmarkMapper
-                          execInTransaction (fun () -> wall.SetEntity(BenchmarkExtensions.CreateDefault()) |> ignore)
-                          let repeatTimes = seq{0..100} |> Seq.toList
-                          measure (fun () -> repeatTimes 
-                                             |> List.map (fun _ -> () |> getEntity |> factory)
-                                             |>ignore) |> this.WriteMeasure
-                          measure ( fun () -> repeatTimes 
-                                              |> List.map (fun _ -> wall.GetEntity<BenchmarkExtensions>()) 
-                                                                    |> ignore) |> this.WriteMeasure
-                          
-                          measure ((fun () -> this.HandWrited(repeatTimes,getEntity))) |> this.WriteMeasure
-                          
-                          this.Finalize()
+        let setter = setterBuilder (Dictionary())
+        let func =  getter typeof<BenchmarkMapper> 
+        let wall = getWall ()
+        let getEntity () = wall.GetEntity(Schema.Lookup("231970cc-4909-44ca-9efd-9fca9d016f8b"|>Guid))
+        let factory = func :?> Entity -> BenchmarkMapper
+        execInTransaction (fun () -> setter typeof<BenchmarkMapper> :?> BenchmarkMapper-> Entity <| BenchmarkMapper.CreateDefault() |> wall.SetEntity |> ignore)
+        let repeatTimes = seq{0..100} |> Seq.toList
+        measure (fun () -> repeatTimes 
+                           |> List.map (fun _ -> () |> getEntity |> factory)
+                           |>ignore) |> this.WriteMeasure
+        
+        measure ((fun () -> this.HandWrited(repeatTimes,getEntity))) |> this.WriteMeasure
+        
+        this.Finalize()
 
     member this.Finalize () =
         this.writer.Dispose()

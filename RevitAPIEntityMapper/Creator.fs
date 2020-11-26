@@ -21,7 +21,7 @@ let writeMeta defaultUT (info:PropertyInfo) (builder:FieldBuilder) =
     |true -> match info.GetCustomAttribute<UnitAttribute>() with
              |null -> match defaultUT with
                       |Some(dut) -> builder.SetUnitType dut
-                      |Option.None -> (log "prop {0} must have attribute unit" [info.Name]) |> failwith
+                      |Option.None -> raise(new MapperException(log "prop {0} or class must have UnitAttribute" [info.Name]))
              |attr -> builder.SetUnitType attr.UnitType
 
 let getCreatorContext (builder:SchemaBuilder) (t:Type) = 
@@ -47,29 +47,28 @@ let creatorinit entity=
               builder.SetSchemaName entity.name |> ignore
               writeSchemaBuilderMeta builder t
               NeedsCreate(getCreatorContext builder t)
-    |s -> s |> Success |> Complited
+    |s -> s |> Complited
 
 let creatorBody ctx = 
     let writeMeta builderMethod t = builderMethod (ctx.info.Name,t) |> writeMeta ctx.stepState.defaultUT ctx.info 
 
     let handleEntity builderMethod def = 
-        ctx.visitor def 
-        |> continueSuccess (fun _ -> (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
-                                     ctx.stepState|> Success)
+        ctx.visitor def |> ignore
+        (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
+        ctx.stepState
     let handleCollection builderMethod = 
         function
         |ValueType(tp)->writeMeta builderMethod tp |> ignore
-                        Success(ctx.stepState)
+                        ctx.stepState
         |EntityType(def)->handleEntity builderMethod def
 
     match ctx.eType with 
     |Simple(t) -> writeMeta ctx.stepState.builder.AddSimpleField t |> ignore
-                  Success(ctx.stepState)
+                  ctx.stepState
     |Array(t) -> handleCollection ctx.stepState.builder.AddArrayField t
     |Entity(def) -> handleEntity ctx.stepState.builder.AddSimpleField def
     |Map(key,value) -> handleCollection (fun (s,t)-> ctx.stepState.builder.AddMapField(s,key,t)) value
-    |_ -> Failure("Unhandled")
+    |_ ->  raise (new MapperException("no one handle input"))
 
-let visitor = visitorBuilder creatorinit creatorBody (fun ctx -> ctx.builder.Finish() |> Success)
+let creator = visitorBuilder creatorinit creatorBody (fun ctx -> ctx.builder.Finish())
 
-let creator : Type -> Schema Result =  visitor |> higthLevelVisitorBuilder
