@@ -13,7 +13,7 @@ open Visitor
 
 [<TestFixture>]
 type BenchmarkTests () = 
-    
+
     member val writer = new StreamWriter(Path.Combine(location,@"..\..\..\..\..\..\","Benchmark.txt"),false)
 
     [<SetUp>]
@@ -25,6 +25,14 @@ type BenchmarkTests () =
 
     member this.GetStr(e:Entity) =
         e.Get<string>("Str")
+
+    member this.WriteSequence (sequence) =
+        sequence |> Seq.iter (fun (s:string) -> s.PadRight(16) |> this.writer.Write
+                                                this.writer.Write("|")) 
+
+    member this.InitGet () = 
+        this.WriteSequence(seq{"method";"runtime";"firstRun";"compiled"})
+        this.WriteSequence(seq{"get"})
 
     member this.HandWrited (repeat,getEntity:unit->Entity) = 
         repeat 

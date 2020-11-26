@@ -47,8 +47,5 @@
     <Reference Include="RTFRevit">
       <HintPath>bin\x64\Debug\net48\RTFRevit.dll</HintPath>
     </Reference>
-    <Reference Include="VCExtensibleStorageExtension">
-      <HintPath>..\..\ESExtensions\VCExtensibleStorageExtension.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
