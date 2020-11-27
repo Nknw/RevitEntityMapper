@@ -45,15 +45,17 @@ let hasType  s t =
     hasTypes s (typeof<unit>,t)
 
 let testCreatorWith should t = 
-    creator t |> should
+    t |> getEntityDefenition |> creator |> should
 
-let testGetterWith should t = 
-    let schema = creator t 
-    getterBuilder (Dictionary()) t |> should schema
+let testGetterWith should t =
+    let def = getEntityDefenition t
+    let schema = creator def
+    getterBuilder (Dictionary()) def |> should schema
 
 let testSetterWith should t =
-    let schema = creator t 
-    setterBuilder (Dictionary()) t |> should schema
+    let def = getEntityDefenition t 
+    let schema = creator def 
+    setterBuilder (Dictionary()) def |> should schema
 
 let setUp () = 
     let doc = app.ActiveUIDocument.Document
@@ -73,10 +75,3 @@ let setUp () =
 
 let boolT = typeof<bool>
 let strT = typeof<string>
-
-let measure action = 
-    let sw = Stopwatch ()
-    sw.Start()
-    action ()
-    sw.Stop()
-    sw.Elapsed

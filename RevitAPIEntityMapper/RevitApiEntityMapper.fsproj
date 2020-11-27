@@ -7,6 +7,9 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);0760</NoWarn>
   </PropertyGroup>
+  <PropertyGroup>
+    <SatelliteResourceLanguages>ru-RU;en-Us</SatelliteResourceLanguages>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Attributes.fs" />
     <Compile Include="MapperException.fs" />
@@ -17,7 +20,7 @@
     <Compile Include="ExpressionVisitor.fs" />
     <Compile Include="GetterBuilder.fs" />
     <Compile Include="SetterBuilder.fs" />
-    <Compile Include="Mappers.fs" />
+    <Compile Include="Mapper.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />

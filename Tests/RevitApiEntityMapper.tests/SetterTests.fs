@@ -21,6 +21,7 @@ type SetterTests ()=
                                     let obj = Bool()
                                     obj.Some <- true
                                     let e = factory obj
+                                    execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                     e.Get<bool>("Some") |> assertThat true)
     
     [<Test>]
@@ -33,6 +34,7 @@ type SetterTests ()=
                                  included.Some <- true
                                  obj.Some <- included
                                  let e = factory obj
+                                 execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                  e.Get<Entity>("Some").Get<bool>("Some") |> assertThat true)
     
     [<Test>]
@@ -44,6 +46,7 @@ type SetterTests ()=
                                  let included = List<bool>(seq{true})
                                  obj.Some <- included
                                  let e = factory obj
+                                 execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                  e.Get<IList<bool>>("Some").First() |> assertThat true)
 
     [<Test>]
@@ -55,6 +58,7 @@ type SetterTests ()=
                                     let included = List<Bool>(seq{Bool()})
                                     obj.Some <- included
                                     let e = factory obj
+                                    execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                     e.Get<IList<Entity>>("Some").First().Get<bool>("Some") |> assertThat false)
 
     [<Test>]
@@ -67,6 +71,7 @@ type SetterTests ()=
                                  included.Add("key",true)
                                  obj.Some <- included
                                  let e = factory obj
+                                 execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                  let first = e.Get<IDictionary<string,bool>>("Some").First()
                                  first.Value |> assertThat true
                                  first.Key |> assertThat "key")
@@ -83,6 +88,7 @@ type SetterTests ()=
                                  included.Add("key",bl)
                                  obj.Some <- included
                                  let e = factory obj
+                                 execInTransaction (fun () -> getWall().SetEntity(e) |> ignore)
                                  let first = e.Get<IDictionary<string,Entity>>("Some").First()
                                  first.Value.Get<bool>("Some") |> assertThat true
                                  first.Key |> assertThat "key")

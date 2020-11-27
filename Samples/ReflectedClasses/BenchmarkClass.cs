@@ -26,7 +26,7 @@ namespace ReflectedClasses
     }
 
     [Schema("231970cc-4909-44ca-9efd-9fca9d016f8b", "test")]
-    public class BenchmarkMapper
+    public class BenchmarkClass
     {
         public string Str { get; set; }
 
@@ -36,9 +36,9 @@ namespace ReflectedClasses
 
         public IDictionary<string,Included3> Dict { get; set; }
 
-        public static BenchmarkMapper CreateDefault()
+        public static BenchmarkClass CreateDefault()
         {
-            return new BenchmarkMapper()
+            return new BenchmarkClass()
             {
                 Str = "str",
                 List = Enumerable.Range(0, 500).Select(i => new Included2() { Str = i.ToString() }).ToList(),
