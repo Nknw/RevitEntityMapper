@@ -44,10 +44,10 @@ type Mapper () =
         let def = getEntityDefenition typeof<'a>
         let cast (factory:obj) = factory :?> Entity->'a
         match Schema.Lookup(def.guid) with
-        |null -> 
+        |null -> raise (new MapperException("Entity {0} not in memory",[def.entityType]))
         | s -> let entity = e.GetEntity(s)
                match entity.IsValid() with
-               |false -> 
+               |false -> raise (new MapperException("Entity {0} is invalid",[def.entityType]))
                |true ->  match getFactories.TryGetValue def.entityType with
                          |(true,factory) -> factory |> cast <| entity
                          |(false,_) -> getter def |> cast <| entity 

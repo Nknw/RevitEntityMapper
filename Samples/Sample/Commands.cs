@@ -21,9 +21,9 @@ namespace Sample
             var doc = commandData.Application.ActiveUIDocument.Document;
             var mapper = MapperInstance.Get();
             var filter = new ExtensibleStorageFilter(mapper.GetGuid<Task>());
-            //var elems = new FilteredElementCollector(doc)
-            //    .WherePasses(filter)
-            //    .Select(e=>mapper.TryGetEntity<>
+            var elems = new FilteredElementCollector(doc)
+                .WherePasses(filter)
+                .Select(mapper.GetEntity<Task>);
 
         }
     }

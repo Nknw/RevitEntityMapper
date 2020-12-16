@@ -13,6 +13,12 @@ namespace ReflectedClasses
         public bool Some { get; set; }
     }
 
+    [Schema("af7772b6-8088-4f04-bc77-2ca8888fcff8","test")]
+    public class Recursive
+    {
+        public Recursive Some { get; set; }
+    }
+
     [Schema("e6e9bb2d-5041-4542-a73f-65b025db20ce", "test")]
     public class IncludedEntity
     {

@@ -1,6 +1,7 @@
 ﻿module Creator
 open TypeResolver
 open Visitor
+open System.Collections.Generic
 open System.Reflection
 open System
 open Autodesk.Revit.DB
@@ -12,6 +13,8 @@ type CreatorContext = {
     builder : SchemaBuilder
     }
 
+let inCreating = HashSet<Guid>() 
+
 let writeMeta defaultUT (info:PropertyInfo) (builder:FieldBuilder) = 
     info 
      |> fetchAttribute<DocumentationAttribute> 
@@ -21,7 +24,7 @@ let writeMeta defaultUT (info:PropertyInfo) (builder:FieldBuilder) =
     |true -> match info.GetCustomAttribute<UnitAttribute>() with
              |null -> match defaultUT with
                       |Some(dut) -> builder.SetUnitType dut
-                      |Option.None -> raise(new MapperException(log "prop {0} or class must have UnitAttribute" [info.Name]))
+                      |Option.None -> raise(new MapperException("prop {0} or class must have UnitAttribute", [info.Name]))
              |attr -> builder.SetUnitType attr.UnitType
 
 let getCreatorContext (builder:SchemaBuilder) (t:Type) = 
@@ -44,6 +47,7 @@ let creatorinit entity=
     match Schema.Lookup entity.guid with
     | null -> let builder = SchemaBuilder entity.guid
               let t = entity.entityType
+              inCreating.Add(entity.guid) |> ignore
               builder.SetSchemaName entity.name |> ignore
               writeSchemaBuilderMeta builder t
               NeedsCreate(getCreatorContext builder t)
@@ -53,9 +57,12 @@ let creatorBody ctx =
     let writeMeta builderMethod t = builderMethod (ctx.info.Name,t) |> writeMeta ctx.stepState.defaultUT ctx.info 
 
     let handleEntity builderMethod def = 
-        ctx.visitor def |> ignore
+        match inCreating.Contains def.guid with
+        |false -> ctx.visitor def |> ignore
+        |true -> ignore()
         (writeMeta builderMethod typeof<Entity>).SetSubSchemaGUID def.guid |> ignore
         ctx.stepState
+
     let handleCollection builderMethod = 
         function
         |ValueType(tp)->writeMeta builderMethod tp |> ignore

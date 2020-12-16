@@ -16,6 +16,11 @@ type CreateTests() =
     member this.ShouldCreateSimpleSchema() =
         typeof<Bool> |> testCreatorWith 
                         (fun s-> hasType s boolT)
+
+    [<Test>]
+    member this.ShouldCreateRecursive () = 
+        typeof<Recursive> |> testCreatorWith
+                            (fun s -> hasType s typeofEntity)
     
     [<Test>]
     member this.ShouldCreateWithIncludedEntity() =

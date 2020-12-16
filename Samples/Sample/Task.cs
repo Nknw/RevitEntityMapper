@@ -14,7 +14,5 @@ namespace Sample
         [Documentation("Remarks requiring correction")]
         public IList<string> Remarks { get; set; }
         public IList<string> FixedRemarks { get; set; }
-
-        public static readonly Guid Guid = new Guid("3ef20639-1768-49c0-8cf3-ef4c6f717369");
     }
 }

@@ -57,7 +57,7 @@ let exprBody fetch response typeResolver ctx =
     |Simple(t) -> t |> fetch ctx |> response ctx
 
     |Entity(def) -> def |> continueFromFactory
-                     (fun from t f-> Expr.Application(f,fetch ctx from) |> response ctx)
+                     (fun from _ f-> Expr.Application(f,fetch ctx from) |> response ctx)
 
     |Array(t) -> handleIncludedType t (fun tp-> tp |> fetchList |> response ctx)
                   (fun def -> def |> continueFromFactory 
@@ -81,6 +81,6 @@ let fetchUnitType callback ctx =
              |Some(_) as ut -> callback ut
              |None -> match ctx.stepState.defaultUT with
                              | Some(_) as ut -> callback ut
-                             | None -> raise(new MapperException(log "prop {0} ro class must have UnitAttribute" [ctx.info.Name]))
+                             | None -> raise(new MapperException("prop {0} ro class must have UnitAttribute", [ctx.info.Name]))
 
 let createNewCtx exprCtx expr = {exprCtx with bindings = expr :: exprCtx.bindings}
