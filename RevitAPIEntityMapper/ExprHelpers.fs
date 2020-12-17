@@ -43,3 +43,12 @@ let To value (ctx:ExprContext<PropertyInfo>) =
 let Val constant = Expr.Value constant
 
 let Cast t expr = Expr.Coerce(expr,t)
+
+let If expr ()= 
+    (fun thenStatement elseStatement -> Expr.IfThenElse(expr,thenStatement,elseStatement))
+
+let Then expr ifStatement = 
+    ifStatement expr
+    
+let Else expr ifThenStatement =
+    ifThenStatement expr

@@ -30,7 +30,6 @@ namespace Sample
         {
             var uiDoc = commandData.Application.ActiveUIDocument;
             var mapper = MapperInstance.Get();
-            Func<Task, IList<string>> selector = GetSelector();
             var tasks = uiDoc.GetSelectedElement()
                 .Select(e =>
                 {
@@ -73,5 +72,3 @@ namespace Sample
                 return task => task.FixedRemarks;
             return task => task.Remarks;
         }
-    }
-}

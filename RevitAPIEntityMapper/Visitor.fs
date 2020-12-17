@@ -39,4 +39,4 @@ let visitorBuilder init step finallize =
 let getEntityDefenition t =
     match t |> Init |> isEntity  with
     | Entity(e) -> e  
-    | _ ->  raise (new MapperException(log "{0} has no SchemaAttribute" [t]))
+    | _ ->  raise (new MapperException("{0} has no SchemaAttribute", [t]))

@@ -16,6 +16,11 @@ type CreateTests() =
     member this.ShouldCreateSimpleSchema() =
         typeof<Bool> |> testCreatorWith 
                         (fun s-> hasType s boolT)
+
+    [<Test>]
+    member this.ShouldCreateRecursive () = 
+        typeof<Recursive> |> testCreatorWith
+                            (fun s -> hasType s typeofEntity)
     
     [<Test>]
     member this.ShouldCreateWithIncludedEntity() =
@@ -26,12 +31,12 @@ type CreateTests() =
 
     [<Test>]
     member this.ShouldCreateIList () =
-        typeof<Lst> |> testCreatorWith 
+        typeof<List> |> testCreatorWith 
                        (fun s-> hasType s boolT)
 
     [<Test>]
     member this.ShouldCreateDict () =
-        typeof<Dict> |> testCreatorWith 
+        typeof<Dictionary> |> testCreatorWith 
                         (fun s -> hasTypes s (strT,boolT))
 
     [<Test>]

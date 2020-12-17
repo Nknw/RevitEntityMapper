@@ -16,18 +16,25 @@ let miGet =
 let miutGet =
     let e = Entity()
     <@ e.Get ("", DisplayUnitType.DUT_1_RATIO) @> |> genericMethodInfo
+
+let miIsValid = 
+    let e = Entity()
+    <@ e.IsValid () @> |> getMethodInfo
    
 let getterInit (factories:Dictionary<Type,obj>) entity = 
     match factories.TryGetValue entity.entityType with
     |(true,factory) -> factory |> Complited
     |(false,_) -> let t = entity.entityType
-                  let constructor = [] |> List.toArray |> t.GetConstructor
                   let obj = Var ("obj", t)
                   let ent = Var ("e",typeofEntity)
-                  let newObj = (constructor,[]) |> Expr.NewObject
-                  let lmd body = Expr.Lambda(ent,Expr.Let(obj,newObj,body)) 
+                  let entExpr = Expr.Var ent
+                  let newObj = Expr.DefaultValue t
+                  let validate = Call miIsValid >> On entExpr >> With [] <| ()
+                  let thenStatement body = Expr.Let(obj,newObj,body)
+                  let elseStatement = Val null |> Cast t 
+                  let lmd body = Expr.Lambda(ent,If validate >> Then (thenStatement body) >> Else elseStatement <|()) 
                   let ctx = { 
-                    input = Expr.Var ent
+                    input = entExpr
                     bindings = []
                     lambdaExpr = lmd
                     output = Expr.Var obj

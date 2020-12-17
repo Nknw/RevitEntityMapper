@@ -93,8 +93,6 @@ let fetchAttribute<'attr when 'attr:>Attribute and 'attr:null> handler (mi:Membe
 
 let getGenerecDef (t:Type) = t.GetGenericArguments()
 
-let log s subs = String.Format(s, List.toArray subs)
-
 let entityCtor  _ (t:Type) = 
     let schema =  t.GetCustomAttribute<SchemaAttribute>()
     match schema with
@@ -117,7 +115,7 @@ let mapCtor cont t =
     let key = gTypes.[0]
     let value = gTypes.[1]
     match availableKeys.Contains key with
-    |false -> raise( new MapperException (log "Unallowed dictionary key {0}" [key]))
+    |false -> raise( new MapperException ("Unallowed dictionary key {0}", [key]))
     |true -> value|> Init |> cont |> tailHandler (fun e->Map(key,e)) 
 
 let arrCtor cont t = 
