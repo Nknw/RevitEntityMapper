@@ -4,15 +4,13 @@ open System.Reflection
 open RTF.Applications
 open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.DB
-open ReflectedClasses
+open System.Collections.Generic
 open NUnit.Framework
 open Creator
 open Visitor
 open GetterBuilder
 open Autodesk.Revit.Mapper
 open System.Linq
-open System.Collections.Generic
-open System.Diagnostics
 open SetterBuilder
 
 let location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
@@ -47,15 +45,19 @@ let hasType  s t =
 let testCreatorWith should t = 
     t |> getEntityDefenition |> creator |> should
 
-let testGetterWith should t =
+let testGetterWith<'t> should =
+    let t = typeof<'t>
     let def = getEntityDefenition t
     let schema = creator def
-    getterBuilder (Dictionary()) def |> should schema
+    getterBuilder (Dictionary()) def :?> Entity->'t |> should schema
+    ()
 
-let testSetterWith should t =
+let testSetterWith<'t> should =
+    let t = typeof<'t>
     let def = getEntityDefenition t 
     let schema = creator def 
-    setterBuilder (Dictionary()) def |> should schema
+    setterBuilder (Dictionary()) def :?>'t -> Entity |> should schema
+    ()
 
 let setUp () = 
     let doc = app.ActiveUIDocument.Document
@@ -64,7 +66,7 @@ let setUp () =
         |null-> null |> ignore
         |sc -> failwith (sc.GUID.ToString()+"exists")
     let checkAll () = 
-        typeof<Bool>.Assembly.GetTypes() 
+        typeof<ReflectedClasses.Bool>.Assembly.GetTypes() 
         |> Seq.map (fun t-> t.GetCustomAttribute<SchemaAttribute>())
         |> Seq.filter (fun attr -> not << isNull <| attr)
         |> Seq.map (fun attr -> checkSchema attr.Guid)

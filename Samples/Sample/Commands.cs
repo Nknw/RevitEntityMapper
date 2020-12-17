@@ -24,7 +24,7 @@ namespace Sample
             var elems = new FilteredElementCollector(doc)
                 .WherePasses(filter)
                 .Select(mapper.GetEntity<Task>);
-
+            return Result.Succeeded;
         }
     }
 }

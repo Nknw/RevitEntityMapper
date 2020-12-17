@@ -21,9 +21,9 @@ let finallize ctx =
     let factory = lambda.CompileUntyped()
     factory
 
-let castFactory fromType toType f =
+let castFactory fromType toType (f:Expr<obj>) =
     let factoryType = fsFuncType |> makeGenType [fromType;toType]
-    Expr.Coerce(Val f,factoryType)
+    Expr.Coerce(f,factoryType)
 
 let handleIncludedType t simpleHandler entityHandler = 
     match t with
@@ -52,7 +52,7 @@ let exprBody fetch response typeResolver ctx =
     let fetchDict t = t |> genDict |> fetch ctx
     let continueFromFactory cont def = 
         let (fromType,toType) = typeResolver def
-        ctx.visitor def |> (fun f -> castFactory fromType toType <| f |> cont fromType toType )
+        <@ ctx.visitor def @> |> castFactory fromType toType |> cont fromType toType 
     match ctx.eType with
     |Simple(t) -> t |> fetch ctx |> response ctx
 

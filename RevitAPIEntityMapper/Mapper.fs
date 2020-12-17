@@ -29,9 +29,9 @@ type Mapper () =
     member this.TryGetEntity<'a when 'a:(new : unit->'a)> (e:Element,[<Out>]result: 'a byref) = 
         let def = getEntityDefenition typeof<'a>
         let cast (factory:obj) = factory :?> Entity->'a
-        match Schema.Lookup(def.guid) with
+        match Schema.Lookup def.guid with
         |null -> false
-        | s -> let entity = e.GetEntity(s)
+        | s -> let entity = e.GetEntity s
                match entity.IsValid() with
                |false -> false
                |true ->  match getFactories.TryGetValue def.entityType with
@@ -43,9 +43,9 @@ type Mapper () =
     member this.GetEntity<'a when 'a:(new : unit->'a)> (e:Element) = 
         let def = getEntityDefenition typeof<'a>
         let cast (factory:obj) = factory :?> Entity->'a
-        match Schema.Lookup(def.guid) with
+        match Schema.Lookup def.guid with
         |null -> raise (new MapperException("Entity {0} not in memory",[def.entityType]))
-        | s -> let entity = e.GetEntity(s)
+        | s -> let entity = e.GetEntity s
                match entity.IsValid() with
                |false -> raise (new MapperException("Entity {0} is invalid",[def.entityType]))
                |true ->  match getFactories.TryGetValue def.entityType with

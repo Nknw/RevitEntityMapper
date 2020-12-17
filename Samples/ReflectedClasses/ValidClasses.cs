@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.Mapper;
+using Autodesk.Revit.DB;
 
 namespace ReflectedClasses
 {
@@ -33,13 +34,13 @@ namespace ReflectedClasses
     }
 
     [Schema("f36e7af2-ffcc-44d9-a912-28d7da92fe3c", "test")]
-    public class Dict
+    public class Dictionary
     {
         public IDictionary<string,bool> Some { get; set; }
     }
 
     [Schema("f9ce5303-a8f1-4793-a855-0f8b30c5978e", "test")]
-    public class Lst
+    public class List
     {
         public IList<bool> Some { get; set; }
     }
@@ -54,5 +55,13 @@ namespace ReflectedClasses
     public class IncludedEntityList
     {
         public IList<Bool> Some { get; set; }
+    }
+
+    [Documentation("Check tests")]
+    [Schema("a54cc936-ee46-4509-b7f0-c266a89e5e27", "test")]
+    public class ElementTree
+    {
+        public ElementId RootElement { get; set; }
+        public IList<ElementId> DependentElements { get; set; }
     }
 }

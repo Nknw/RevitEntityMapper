@@ -31,12 +31,12 @@ type CreateTests() =
 
     [<Test>]
     member this.ShouldCreateIList () =
-        typeof<Lst> |> testCreatorWith 
+        typeof<List> |> testCreatorWith 
                        (fun s-> hasType s boolT)
 
     [<Test>]
     member this.ShouldCreateDict () =
-        typeof<Dict> |> testCreatorWith 
+        typeof<Dictionary> |> testCreatorWith 
                         (fun s -> hasTypes s (strT,boolT))
 
     [<Test>]
