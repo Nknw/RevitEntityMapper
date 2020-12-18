@@ -72,7 +72,7 @@
     <Compile Include="MapperInstance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task.cs" />
-    <Compile Include="UIDocumentExtensions.cs" />
+    <Compile Include="Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\RevitAPIEntityMapper\RevitApiEntityMapper.fsproj">

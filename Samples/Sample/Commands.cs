@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB.ExtensibleStorage;
+using Autodesk.Revit.Mapper;
 using System.Linq;
 using System.Text;
 using System;
@@ -14,9 +15,8 @@ namespace Sample
         {
             var uiDoc = commandData.Application.ActiveUIDocument;
             var doc = uiDoc.Document;
-            var mapper = MapperInstance.Get();
-            var filter = new ExtensibleStorageFilter(mapper.GetGuid<Task>());
-            var elems = new FilteredElementCollector(doc,commandData.View.Id)
+            var filter = new ExtensibleStorageFilter(Mapper.GetGuid<Task>());
+            var elems = new FilteredElementCollector(doc, commandData.View.Id)
                .WherePasses(filter)
                .ToElementIds();
             uiDoc.Selection.SetElementIds(elems);
@@ -29,17 +29,13 @@ namespace Sample
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiDoc = commandData.Application.ActiveUIDocument;
-            var mapper = MapperInstance.Get();
             var tasks = uiDoc.GetSelectedElement()
-                .Select(e =>
-                {
-                    if (mapper.TryGetEntity<Task>(e, out var task))
-                        return (task,e);
-                    return default;
-                }).Where(t=>t.task != null);
+                .Select(e => (e.GetTask(),e))
+                .Where(t => t.Item1 != null);
             var sb = new StringBuilder();
             var pos = 1;
-            foreach(var (task,element) in tasks)
+            var selector = GetSelector();
+            foreach (var (task, element) in tasks)
             {
                 var remarks = selector(task)
                     .OrderBy(r => r);
@@ -60,7 +56,7 @@ namespace Sample
             return Result.Succeeded;
         }
 
-        private Func<Task,IList<string>> GetSelector()
+        private Func<Task, IList<string>> GetSelector()
         {
             var statusTaskDialog = new TaskDialog("Task reader")
             {
@@ -72,3 +68,5 @@ namespace Sample
                 return task => task.FixedRemarks;
             return task => task.Remarks;
         }
+    }
+}

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autodesk.Revit.UI;
 using System.Reflection;
 using Autodesk.Revit.UI.Events;
+using Autodesk.Revit.DB;
 
 namespace Sample
 {
@@ -46,11 +47,11 @@ namespace Sample
             {
                 var element = uiDoc.Document
                     .GetElement(selected.First());
-                var mapper = MapperInstance.Get();
-                if (!mapper.TryGetEntity<Task>(element, out var task))
+                var task = element.GetTask();
+                if (task == null)
                     LogError("Element has no task");
                 else
-                    mapper.SetEntity(element, task.RemoveRemark(position - 1));
+                    element.SetTask(task.RemoveRemark(position - 1));
             }
         }
 
@@ -69,15 +70,8 @@ namespace Sample
             var mapper = MapperInstance.Get();
             var uiDoc = e.Application.ActiveUIDocument;
             var selectedElements = uiDoc.GetSelectedElement();
-            foreach(var element in selectedElements)
-            {
-                if (!mapper.TryGetEntity<Task>(element, out var task))
-                    mapper.SetEntity(element, new Task()
-                    {
-                        Remarks = new[] { tb.ItemText }
-                    });
-                else mapper.SetEntity(element, task.AddRemark(tb.ItemText));
-            }
+            foreach (var element in selectedElements)
+                element.UpdateTask(t => t.AddRemark(tb.ItemText));
         }
     }
 }

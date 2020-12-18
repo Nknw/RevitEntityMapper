@@ -9,8 +9,8 @@ namespace Sample
 {
     public static class MapperInstance
     {
-        private readonly static Mapper mapper = new Mapper();
+        private readonly static IMapper<Task> mapper = Mapper.CreateAdHoc<Task>(); 
 
-        public static Mapper Get() => mapper;
+        public static IMapper<Task> Get() => mapper;
     }
 }
