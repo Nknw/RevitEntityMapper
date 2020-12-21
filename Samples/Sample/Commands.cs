@@ -6,10 +6,12 @@ using System.Linq;
 using System.Text;
 using System;
 using System.Collections.Generic;
+using Autodesk.Revit.Attributes;
 
 namespace Sample
 {
-    public class ShowElementWithUncompletedOnCurrentViewTasksCommand : IExternalCommand
+    [Transaction(TransactionMode.ReadOnly)]
+    public class ShowElementsWithTaskOnCurrentViewCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -24,6 +26,7 @@ namespace Sample
         }
     }
 
+    [Transaction(TransactionMode.ReadOnly)]
     public class ReadTasksCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -43,10 +46,14 @@ namespace Sample
                     continue;
                 sb.AppendLine($"{element.Name} :");
                 foreach (var r in remarks)
+                {
                     sb.AppendLine($"\t{pos} {r}");
+                    pos++;
+                }
                 sb.AppendLine();
-                pos++;
             }
+            if (string.IsNullOrWhiteSpace(sb.ToString()))
+                sb.AppendLine("Elements have no tasks");
             var dialog = new TaskDialog("Task reader")
             {
                 CommonButtons = TaskDialogCommonButtons.Ok,

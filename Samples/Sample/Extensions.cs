@@ -22,7 +22,14 @@ namespace Autodesk.Revit.DB
     public static class ElementExtensions
     {
         public static void SetTask(this Element element, Task task)
-            => MapperInstance.Get().SetEntity(element, task);
+        {
+            using (var tr = new Transaction(element.Document,"set task"))
+            {
+                tr.Start();
+                MapperInstance.Get().SetEntity(element, task);
+                tr.Commit();
+            }
+        }
 
         public static Task GetTask(this Element element)
             => MapperInstance.Get().GetEntity(element);
@@ -36,7 +43,18 @@ namespace Autodesk.Revit.DB
                 FixedRemarks = new List<string>()
             };
             update(task);
-            mapper.SetEntity(element, task);
+            using (var tr = new Transaction(element.Document,"set task"))
+            {
+                tr.Start();
+                mapper.SetEntity(element, task);
+                tr.Commit();
+            }
+        }
+
+        public static IEnumerable<Element> GetElements(this Document doc,IEnumerable<ElementId> ids)
+        {
+            foreach (var id in ids)
+                yield return doc.GetElement(id);
         }
     }
 }

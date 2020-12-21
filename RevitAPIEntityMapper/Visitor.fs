@@ -3,37 +3,31 @@ open TypeResolver
 open System.Reflection
 open Autodesk.Revit.Mapper
 
-type InitResult<'a,'b> = 
-    |Complited of 'a
-    |NeedsCreate of 'b 
+type InitResult<'result,'state> = 
+    |Complited of 'result
+    |NeedsCreate of 'state 
 
 let getPropType (prop:PropertyInfo) = prop.PropertyType
 
-type StepContext<'a,'b> = {
+type StepContext<'result,'state> = {
     info : PropertyInfo
-    visitor : EntityDef -> 'a 
+    visitor : EntityDef -> 'result 
     eType : EntityType
-    stepState : 'b
+    stepState : 'state
     }
 
 let visitorBuilder init step finallize =
     let rec visitor entity =
-        let rec iter  = 
-            function
-            |(state,[]) -> state
-            |(state,h::tail) -> let next eType =
-                                    let newState = { info = h; visitor = visitor;
-                                                     eType = eType; stepState = state; 
-                                                     } |> step 
-                                    (newState,tail) |> iter
-                                
-                                match h |> getPropType |> Init |> getType with
-                                | Entity(_) | Map(_) | Array(_) | Simple(_) as t -> t |> next
-                                | Init(_) -> raise (new MapperException("no one handle input"))
-                                       
+        let foldProps state propInfo  =  
+            match propInfo |> getPropType |> Init |> getType with
+            | Init(_) -> raise (new MapperException("no one handle input"))
+            | Entity(_) | Map(_) | Array(_) | Simple(_) as t -> { info = propInfo; visitor = visitor;
+                                                                  eType = t; stepState = state; 
+                                                                  } |> step
+          
         match entity |> init with 
-        | NeedsCreate(s) -> iter (s,getProps entity) |> finallize
-        | Complited(cs) -> cs
+        | Complited(result) -> result
+        | NeedsCreate(state) -> (state,getProps entity) ||> List.fold foldProps |> finallize
     visitor
 
 let getEntityDefenition t =

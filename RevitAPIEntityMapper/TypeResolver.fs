@@ -8,6 +8,13 @@ open System.Linq
 open FSharp.Quotations
 open Autodesk.Revit.Mapper
 
+do
+    AppDomain.CurrentDomain.add_AssemblyResolve
+         (ResolveEventHandler(fun _ arg ->
+             match arg.Name.Contains("4.4.3.0") && arg.Name.Contains("FSharp.Core") with
+              |false -> null
+              |true -> AppDomain.CurrentDomain.GetAssemblies() |> Array.find (fun asm -> asm.GetName().Name.Contains("FSharp.Core")))) |> ignore
+
 //type helpers
 let typeofEntity = typeof<Entity>
 let dict = typedefof<IDictionary<obj,obj>>

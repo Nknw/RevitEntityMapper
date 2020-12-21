@@ -15,16 +15,20 @@ namespace Sample
         public IList<string> Remarks { get; set; }
         public IList<string> FixedRemarks { get; set; }
 
-        public Task AddRemark(string remark)
+        public void AddRemark(string remark)
         {
             Remarks.Add(remark);
-            return this;
+            Completed = false;
         }
 
-        public Task RemoveRemark(int pos)
+        public void ToFixed(int pos)
         {
+            if (pos >= Remarks.Count)
+                return;
+            FixedRemarks.Add(Remarks[pos]);
             Remarks.RemoveAt(pos);
-            return this;
+            if (Remarks.Count == 0)
+                Completed = true;
         }
     }
 }

@@ -48,7 +48,7 @@ type internal CachingMapper () =
                    match getFactories.TryGetValue def.entityType with
                    |(true,factory) -> entity |> cast  factory
                    |(false,_) -> entity |> cast (getter def)
-
+                   
         member this.Set<'obj when 'obj:(new : unit->'obj) and 'obj:null> (e:Element,obj:'obj) =
             let def = getEntityDefenition typeof<'obj>
             let set (factory:obj) = factory :?> 'obj -> Entity <| obj |> e.SetEntity |> ignore

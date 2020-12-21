@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Sample</Name>
+    <Assembly>Sample.dll</Assembly>
+    <FullClassName>Sample.Application</FullClassName>
+    <AddInId>92a621f4-ba0e-4f5d-87d6-3cb13f11f321</AddInId>
+    <VendorId>TaskScheduler</VendorId>
+  </AddIn>
+</RevitAddIns>
