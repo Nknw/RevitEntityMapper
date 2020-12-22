@@ -25,7 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="NUnit" Version="2.6.3" />
     <PackageReference Include="RevitTestFramework" Version="1.19.23">
@@ -41,10 +43,12 @@
 
   <ItemGroup>
     <Reference Include="RevitTestFrameworkTypes">
-      <HintPath>bin\x64\Debug\net48\RevitTestFrameworkTypes.dll</HintPath>
+      <HintPath>D:\Revit Test Framework\2019\RevitTestFrameworkTypes.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="RTFRevit">
-      <HintPath>bin\x64\Debug\net48\RTFRevit.dll</HintPath>
+      <HintPath>D:\Revit Test Framework\2019\RTFRevit.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 </Project>

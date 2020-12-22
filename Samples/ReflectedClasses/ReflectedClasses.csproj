@@ -59,13 +59,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
-    <PackageReference Include="FSharp.Quotations.Evaluator">
-      <Version>2.1.0</Version>
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BenchmarkClass.cs" />
     <Compile Include="Features.cs" />
     <Compile Include="ValidClasses.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

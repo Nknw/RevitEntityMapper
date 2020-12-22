@@ -49,14 +49,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RevitAPI, Version=19.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\..\packages\BimLab.Revit.Api.2019.1.0.1\lib\net47\RevitAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RevitAPIUI, Version=19.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\..\packages\BimLab.Revit.Api.2019.1.0.1\lib\net47\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -67,6 +59,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Application.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="MapperInstance.cs" />
@@ -75,13 +72,13 @@
     <Compile Include="Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Sample.addin" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\RevitAPIEntityMapper\RevitApiEntityMapper.fsproj">
       <Project>{36cef504-7991-4932-89fb-fbe1335126b5}</Project>
       <Name>RevitApiEntityMapper</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Sample.addin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

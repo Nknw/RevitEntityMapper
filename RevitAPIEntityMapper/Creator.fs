@@ -6,7 +6,7 @@ open System.Reflection
 open System
 open Autodesk.Revit.DB
 open Autodesk.Revit.DB.ExtensibleStorage
-open Autodesk.Revit.Mapper
+open Revit.EntityMapper
 
 type CreatorContext = {
     defaultUT : Option<UnitType>

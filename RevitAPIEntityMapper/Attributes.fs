@@ -1,4 +1,4 @@
-﻿namespace Autodesk.Revit.Mapper
+﻿namespace Revit.EntityMapper
 open System
 open Autodesk.Revit.DB
 open Autodesk.Revit.DB.ExtensibleStorage

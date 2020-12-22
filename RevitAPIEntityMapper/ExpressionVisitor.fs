@@ -5,7 +5,7 @@ open Visitor
 open FSharp.Quotations
 open FSharp.Quotations.Evaluator
 open System.Reflection
-open Autodesk.Revit.Mapper
+open Revit.EntityMapper
 
 type 'ut ExpressionContext = {
     lambdaExpr: Expr -> Expr

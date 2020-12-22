@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
@@ -23,7 +23,9 @@
     <Compile Include="Mapper.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1" />
+    <PackageReference Include="BimLab.Revit.Api.2019" Version="1.0.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
   </ItemGroup>
 </Project>

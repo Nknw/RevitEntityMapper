@@ -6,7 +6,7 @@ open Autodesk.Revit.DB.ExtensibleStorage
 open Autodesk.Revit.DB
 open System.Linq
 open FSharp.Quotations
-open Autodesk.Revit.Mapper
+open Revit.EntityMapper
 
 do
     AppDomain.CurrentDomain.add_AssemblyResolve

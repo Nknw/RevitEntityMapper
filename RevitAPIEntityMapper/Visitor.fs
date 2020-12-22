@@ -1,7 +1,7 @@
 ﻿module Visitor
 open TypeResolver
 open System.Reflection
-open Autodesk.Revit.Mapper
+open Revit.EntityMapper
 
 type InitResult<'result,'state> = 
     |Complited of 'result

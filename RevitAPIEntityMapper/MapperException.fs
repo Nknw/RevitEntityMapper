@@ -1,4 +1,4 @@
-﻿namespace Autodesk.Revit.Mapper
+﻿namespace Revit.EntityMapper
 open System
 
 type MapperException (str) = 

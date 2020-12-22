@@ -9,7 +9,7 @@ open NUnit.Framework
 open Creator
 open Visitor
 open GetterBuilder
-open Autodesk.Revit.Mapper
+open Revit.EntityMapper
 open System.Linq
 open SetterBuilder
 

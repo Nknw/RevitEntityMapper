@@ -1,4 +1,4 @@
-﻿namespace Autodesk.Revit.Mapper
+﻿namespace Revit.EntityMapper
 open Autodesk.Revit.DB
 open System.Collections.Generic
 open Autodesk.Revit.DB.ExtensibleStorage
@@ -59,26 +59,26 @@ type internal CachingMapper () =
             |(false,_) -> setter def |> set
 
 type internal AdHocMapper<'obj when 'obj:(new : unit->'obj) and 'obj:null> 
-    (mgetter:Option<obj>,msetter:Option<obj>,def:EntityDef) =
-
-    let getter = 
-        match mgetter with
-        |Some(factory) -> factory :?> Entity -> 'obj
-        |None -> getterBuilder (Dictionary()) def :?> Entity -> 'obj
+    (mgetter:unit->Option<obj>, msetter:unit->Option<obj>, def:EntityDef) =
      
-    let setter = 
-        match msetter with
+    let getter = lazy(
+        match mgetter() with
+        |Some(factory) -> factory :?> Entity -> 'obj
+        |None -> getterBuilder (Dictionary()) def :?> Entity -> 'obj)
+     
+    let setter = lazy(
+        match msetter() with
         |Some(factory) -> factory :?> 'obj -> Entity
-        |None -> setterBuilder (Dictionary()) def :?> 'obj -> Entity
+        |None -> setterBuilder (Dictionary()) def :?> 'obj -> Entity)
 
     let schema = creator def
     
     interface IMapper<'obj> with
         member this.GetEntity (e:Element) = 
-            e.GetEntity schema |> getter
+            e.GetEntity schema |> getter.Force()
 
         member this.SetEntity (e:Element,entity:'obj) =
-            setter entity |> e.SetEntity
+            setter.Force() entity |> e.SetEntity
             
 
 [<AbstractClass;Sealed>]
@@ -93,6 +93,7 @@ type Mapper private () =
         def.guid
 
     static member CreateNew () = 
+        eraseReferences ()
         let mapper =  CachingMapper() 
         WeakReference(mapper) |> mappers.Add |> ignore
         mapper :> IMapper
@@ -100,12 +101,12 @@ type Mapper private () =
     static member CreateAdHoc<'obj when 'obj:(new : unit->'obj) and 'obj:null> () = 
         eraseReferences ()
         let def = getEntityDefenition typeof<'obj>
-        let getter = mappers |> Seq.tryPick 
-                                 (fun wr -> let mapper = wr.Target :?> CachingMapper
-                                            mapper.GetGetterFor def.entityType)
+        let getter () = mappers |> Seq.tryPick 
+                                    (fun wr -> let mapper = wr.Target :?> CachingMapper
+                                               mapper.GetGetterFor def.entityType)
 
-        let setter =  mappers |> Seq.tryPick 
-                                 (fun wr -> let mapper = wr.Target :?> CachingMapper
-                                            mapper.GetSetterFor def.entityType)
+        let setter () =  mappers |> Seq.tryPick 
+                                    (fun wr -> let mapper = wr.Target :?> CachingMapper
+                                               mapper.GetSetterFor def.entityType)
 
         AdHocMapper<'obj>(setter,getter,def) :> IMapper<'obj>       
