@@ -2,6 +2,7 @@
 
 Revit API Entity mapper based on LINQ Expressions.
 
+[![NuGet Link](https://img.shields.io/nuget/v/Revit.EntityMapper)](https://www.nuget.org/packages/Revit.EntityMapper/)
 ## Usage
 
 ```csharp

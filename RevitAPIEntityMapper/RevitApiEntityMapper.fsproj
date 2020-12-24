@@ -9,6 +9,18 @@
   </PropertyGroup>
   <PropertyGroup>
     <SatelliteResourceLanguages>ru-RU;en-Us</SatelliteResourceLanguages>
+    <AssemblyName>Revit.EntityMapper</AssemblyName>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Revit API Entity mapper based on LINQ Expressions.</Description>
+    <PackageTags>revit entity extensiblestorage</PackageTags>
+    <VersionPrefix>0.9.0</VersionPrefix>
+    <FileVersion>0.9.0.0</FileVersion>
+    
+
+    <Authors>Ivan Sheremetev</Authors>
+    <Copyright>Copyright © Ivan Sheremetev</Copyright>
+    <Product>Revit.EntityMapper</Product>
+    <RepositoryUrl>https://github.com/Nknw/RevitEntityMapper</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Attributes.fs" />
