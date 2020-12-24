@@ -74,8 +74,15 @@ let readUnit (info:MemberInfo) =
     |null -> None
     |attr -> Some(attr.DisplayType)
 
+let hasUt ctx = 
+    let hasUt t = List.contains t havingUnitType
+    match ctx.eType with
+    |Array(t) | Map(_,t) -> handleIncludedType t hasUt (fun _ -> false)
+    |Simple(t) -> hasUt t
+    |_ -> false
+
 let fetchUnitType callback ctx = 
-    match List.contains ctx.info.PropertyType havingUnitType with
+    match hasUt ctx with
     |false -> callback None
     |true -> match ctx.info |> readUnit with
              |Some(_) as ut -> callback ut

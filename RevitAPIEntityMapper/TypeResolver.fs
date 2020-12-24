@@ -91,7 +91,8 @@ let pipeline ctor predicate = function
 
 let getProps entity = entity.entityType.GetProperties(BindingFlags.Public|||BindingFlags.Instance)
                        |> List.ofArray 
-                       |> List.filter (fun p-> isNull (p.GetCustomAttribute<ExcludeAttribute>()))
+                       |> List.filter (fun p -> isNull (p.GetCustomAttribute<ExcludeAttribute>()))
+                       |> List.filter (fun p -> p.CanRead && p.CanWrite)
 
 let fetchAttribute<'attr when 'attr:>Attribute and 'attr:null> handler (mi:MemberInfo) =
     match mi.GetCustomAttribute<'attr>() with
